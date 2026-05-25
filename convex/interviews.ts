@@ -2,10 +2,10 @@ import { v } from "convex/values";
 import { mutation, query, MutationCtx, QueryCtx } from "./_generated/server";
 import { getCurrentUser, assertAdmin } from "./users";
 import { paginationOptsValidator } from "convex/server";
-import { Document } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 
 // Helper to batch fetch and attach user details to interviews
-async function attachUsersToInterviews(ctx: QueryCtx, interviews: Document<"interviews">[]) {
+async function attachUsersToInterviews(ctx: QueryCtx, interviews: Doc<"interviews">[]) {
   if (interviews.length === 0) return [];
 
   // Extract unique clerkIds of creators and assignees
@@ -262,13 +262,11 @@ export const getPaginated = query({
       throw new Error("Unauthorized: Please sign in.");
     }
 
-    let q = ctx.db.query("interviews");
-
-    // Order by createdAt desc by default
-    q = q.order("desc");
-
     // Perform queries & filter in-memory/in-handler for rich search capabilities
-    const results = await q.paginate(args.paginationOpts);
+    const results = await ctx.db
+      .query("interviews")
+      .order("desc")
+      .paginate(args.paginationOpts);
 
     // Transform page content to attach creator & assignee
     const enrichedPage = await attachUsersToInterviews(ctx, results.page);
