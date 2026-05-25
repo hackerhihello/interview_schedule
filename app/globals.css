@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+:root {
+  --background: hsl(220 25% 97%);
+  --foreground: hsl(224 71.4% 4.1%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(224 71.4% 4.1%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(224 71.4% 4.1%);
+  --primary: hsl(220 90% 56%);
+  --primary-foreground: hsl(210 20% 98%);
+  --secondary: hsl(220 14% 90%);
+  --secondary-foreground: hsl(220 15% 15%);
+  --muted: hsl(220 14% 94%);
+  --muted-foreground: hsl(220 10% 40%);
+  --accent: hsl(220 14% 90%);
+  --accent-foreground: hsl(220 15% 15%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(210 20% 98%);
+  --border: hsl(220 13% 88%);
+  --input: hsl(220 13% 88%);
+  --ring: hsl(220 90% 56%);
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: hsl(224 25% 6%);
+  --foreground: hsl(210 20% 98%);
+  --card: hsl(224 25% 9%);
+  --card-foreground: hsl(210 20% 98%);
+  --popover: hsl(224 25% 8%);
+  --popover-foreground: hsl(210 20% 98%);
+  --primary: hsl(217 91% 60%);
+  --primary-foreground: hsl(222.2 47.4% 11.2%);
+  --secondary: hsl(224 25% 14%);
+  --secondary-foreground: hsl(210 20% 98%);
+  --muted: hsl(224 25% 12%);
+  --muted-foreground: hsl(217.9 10.6% 64.9%);
+  --accent: hsl(224 25% 14%);
+  --accent-foreground: hsl(210 20% 98%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(210 20% 98%);
+  --border: hsl(224 25% 15%);
+  --input: hsl(224 25% 15%);
+  --ring: hsl(217 91% 60%);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.4s ease-out;
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
+
+/* Base style resets */
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Preset class */
+.glass {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.dark .glass {
+  background: rgba(15, 20, 32, 0.45);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 80%);
+  border-radius: 999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 25%);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 70%);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 35%);
+}
