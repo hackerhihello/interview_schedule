@@ -15,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

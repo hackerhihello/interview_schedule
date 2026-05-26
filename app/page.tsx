@@ -2,7 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  Sparkles,
   Calendar,
   Shield,
   Layers,
@@ -59,7 +58,7 @@ export default async function HomePage() {
         
         {/* Intro Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-xs text-blue-400 font-semibold animate-pulse">
-          <Sparkles className="h-3.5 w-3.5" />
+          <img src="/logo.png" className="h-3.5 w-3.5 object-contain animate-spin" style={{ animationDuration: '3s' }} alt="Ignited Minds Logo" />
           <span>Next-Generation Interview Platforms</span>
         </div>
 

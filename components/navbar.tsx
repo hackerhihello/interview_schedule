@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { Menu, X, Bell, Search, Sparkles } from "lucide-react";
+import { Menu, X, Bell, Search } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { SidebarNav } from "./sidebar-nav";
 import { cn } from "@/lib/utils";

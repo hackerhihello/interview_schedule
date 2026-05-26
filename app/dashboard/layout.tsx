@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { Navbar } from "@/components/navbar";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
 

@@ -15,7 +15,6 @@ import {
   TrendingUp,
   Award,
   Video,
-  Sparkles,
 } from "lucide-react";
 import {
   BarChart,
@@ -100,7 +99,7 @@ export default function DashboardPage() {
           <div className="px-4 py-2.5 rounded-xl border border-border bg-secondary/20 backdrop-blur-sm text-center">
             <span className="text-xs text-muted-foreground block">Next Candidate</span>
             <span className="text-sm font-bold text-primary flex items-center gap-1.5 justify-center">
-              <Sparkles className="h-3.5 w-3.5" />
+              <img src="/logo.png" className="h-3.5 w-3.5 object-contain" alt="Ignited Minds Logo" />
               Active
             </span>
           </div>

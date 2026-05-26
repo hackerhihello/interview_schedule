@@ -10,7 +10,6 @@ import {
   Calendar as CalendarIcon,
   Clock,
   User,
-  Sparkles,
   X,
   Mail,
   Briefcase,
@@ -494,7 +493,7 @@ export default function CalendarPage() {
               <div className="flex items-center justify-between p-6 border-b border-border bg-secondary/15">
                 <div>
                   <span className="text-[9px] font-bold uppercase tracking-wider text-primary px-2.5 py-0.5 bg-primary/10 rounded-full inline-flex items-center gap-1.5 shadow-sm">
-                    <Sparkles className="h-3 w-3" />
+                    <img src="/logo.png" className="h-3 w-3 object-contain" alt="Ignited Minds Logo" />
                     <span>Daily Summary Sheet</span>
                   </span>
                   <h3 className="text-base font-bold text-foreground mt-2 font-sans text-left">
