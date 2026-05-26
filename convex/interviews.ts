@@ -46,12 +46,25 @@ async function attachUsersToInterviews(ctx: QueryCtx, interviews: Doc<"interview
     }
   });
 
-  // Attach users to interview items
   return interviews.map((interview) => ({
     ...interview,
     creator: userMap.get(interview.createdBy) || null,
     assignedUser: interview.assignedUserId ? (userMap.get(interview.assignedUserId) || null) : null,
   }));
+}
+
+// Helper to parse time string (e.g. "10:30 AM") to minutes from midnight
+function parseTimeToMinutes(timeStr: string): number {
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return 0;
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const period = match[3].toUpperCase();
+  
+  if (period === "PM" && hours !== 12) hours += 12;
+  if (period === "AM" && hours === 12) hours = 0;
+  
+  return hours * 60 + minutes;
 }
 
 // Create interview (Authenticated & Approved users)
@@ -78,6 +91,31 @@ export const create = mutation({
     const isApproved = user.status === "approved" || !user.status;
     if (!isApproved) {
       throw new Error("Unauthorized: Your account access is pending approval.");
+    }
+
+    // Validate overlapping interviews on the same day
+    const sameDayInterviews = await ctx.db
+      .query("interviews")
+      .withIndex("by_date", (q) => q.eq("interviewDate", args.interviewDate))
+      .collect();
+
+    const newStart = parseTimeToMinutes(args.startTime);
+    const newEnd = parseTimeToMinutes(args.endTime);
+
+    if (newStart >= newEnd) {
+      throw new Error("Timing Conflict: End time must be strictly after start time.");
+    }
+
+    for (const item of sameDayInterviews) {
+      if (item.status === "cancelled") continue;
+
+      const existingStart = parseTimeToMinutes(item.startTime);
+      const existingEnd = parseTimeToMinutes(item.endTime);
+
+      const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
+      if (overlap) {
+        throw new Error(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
+      }
     }
 
     const interviewId = await ctx.db.insert("interviews", {
@@ -153,6 +191,42 @@ export const update = mutation({
 
     if (!isAdmin && !isCreator && !isAssignee) {
       throw new Error("Unauthorized: You can only edit interviews you scheduled or are assigned to.");
+    }
+
+    // Validate overlapping interviews on the same day if date or times change
+    const finalDate = args.interviewDate !== undefined ? args.interviewDate : existing.interviewDate;
+    const finalStart = args.startTime !== undefined ? args.startTime : existing.startTime;
+    const finalEnd = args.endTime !== undefined ? args.endTime : existing.endTime;
+
+    if (
+      args.interviewDate !== undefined ||
+      args.startTime !== undefined ||
+      args.endTime !== undefined
+    ) {
+      const sameDayInterviews = await ctx.db
+        .query("interviews")
+        .withIndex("by_date", (q) => q.eq("interviewDate", finalDate))
+        .collect();
+
+      const newStart = parseTimeToMinutes(finalStart);
+      const newEnd = parseTimeToMinutes(finalEnd);
+
+      if (newStart >= newEnd) {
+        throw new Error("Timing Conflict: End time must be strictly after start time.");
+      }
+
+      for (const item of sameDayInterviews) {
+        if (item._id === args.id) continue; // Skip self
+        if (item.status === "cancelled") continue;
+
+        const existingStart = parseTimeToMinutes(item.startTime);
+        const existingEnd = parseTimeToMinutes(item.endTime);
+
+        const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
+        if (overlap) {
+          throw new Error(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
+        }
+      }
     }
 
     // Prepare update parameters

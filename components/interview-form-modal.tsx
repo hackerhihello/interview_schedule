@@ -25,8 +25,12 @@ import { cn } from "@/lib/utils";
 // Form Validation Schema using Zod
 const interviewFormSchema = z.object({
   candidateName: z.string().min(2, "Candidate name must be at least 2 characters"),
-  startTime: z.string().min(1, "Start time is required"),
-  endTime: z.string().min(1, "End time is required"),
+  startHour: z.string().min(1, "Hour is required"),
+  startMinute: z.string().min(1, "Minute is required"),
+  startPeriod: z.string().min(1, "Period is required"),
+  endHour: z.string().min(1, "Hour is required"),
+  endMinute: z.string().min(1, "Minute is required"),
+  endPeriod: z.string().min(1, "Period is required"),
   round: z.string().min(1, "Interview round is required"),
   interviewDate: z.string().min(1, "Interview date is required"), // "YYYY-MM-DD"
   companyName: z.string().optional(),
@@ -95,8 +99,12 @@ export function InterviewFormModal({
     resolver: zodResolver(interviewFormSchema),
     defaultValues: {
       candidateName: "",
-      startTime: "",
-      endTime: "",
+      startHour: "10",
+      startMinute: "00",
+      startPeriod: "AM",
+      endHour: "11",
+      endMinute: "00",
+      endPeriod: "AM",
       round: "",
       interviewDate: "",
       companyName: "",
@@ -109,6 +117,19 @@ export function InterviewFormModal({
 
   // Populate form if in edit mode
   useEffect(() => {
+    // Helper to parse time string (e.g. "10:30 AM") into hours, minutes, period
+    const parseTime = (timeStr: string) => {
+      const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (match) {
+        return {
+          hour: match[1].padStart(2, "0"),
+          minute: match[2],
+          period: match[3].toUpperCase(),
+        };
+      }
+      return { hour: "10", minute: "00", period: "AM" };
+    };
+
     if (existingInterview) {
       // Convert timestamp to YYYY-MM-DD
       const date = new Date(existingInterview.interviewDate);
@@ -117,10 +138,17 @@ export function InterviewFormModal({
       const day = String(date.getDate()).padStart(2, "0");
       const formattedDate = `${year}-${month}-${day}`;
 
+      const startParsed = parseTime(existingInterview.startTime);
+      const endParsed = parseTime(existingInterview.endTime);
+
       reset({
         candidateName: existingInterview.candidateName,
-        startTime: existingInterview.startTime,
-        endTime: existingInterview.endTime,
+        startHour: startParsed.hour,
+        startMinute: startParsed.minute,
+        startPeriod: startParsed.period,
+        endHour: endParsed.hour,
+        endMinute: endParsed.minute,
+        endPeriod: endParsed.period,
         round: existingInterview.round,
         interviewDate: formattedDate,
         companyName: existingInterview.companyName || "",
@@ -133,8 +161,12 @@ export function InterviewFormModal({
       // Clear form for creation
       reset({
         candidateName: "",
-        startTime: "",
-        endTime: "",
+        startHour: "10",
+        startMinute: "00",
+        startPeriod: "AM",
+        endHour: "11",
+        endMinute: "00",
+        endPeriod: "AM",
         round: "Technical Round",
         interviewDate: defaultDate || "",
         companyName: "",
@@ -153,6 +185,33 @@ export function InterviewFormModal({
 
     setIsSubmitting(true);
     setErrorMessage(null);
+
+    // Helpers to convert to minutes for timezone and start/end check
+    const parseTimeToMinutes = (timeStr: string) => {
+      const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (!match) return 0;
+      let hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2], 10);
+      const period = match[3].toUpperCase();
+      
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+      
+      return hours * 60 + minutes;
+    };
+
+    const formattedStart = `${data.startHour}:${data.startMinute} ${data.startPeriod}`;
+    const formattedEnd = `${data.endHour}:${data.endMinute} ${data.endPeriod}`;
+
+    const startMin = parseTimeToMinutes(formattedStart);
+    const endMin = parseTimeToMinutes(formattedEnd);
+
+    if (startMin >= endMin) {
+      setErrorMessage("Timing Conflict: End time must be strictly after start time.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Convert date string YYYY-MM-DD to a timestamp at midnight
       const [year, month, day] = data.interviewDate.split("-").map(Number);
@@ -161,8 +220,8 @@ export function InterviewFormModal({
 
       const payload = {
         candidateName: data.candidateName,
-        startTime: data.startTime,
-        endTime: data.endTime,
+        startTime: formattedStart,
+        endTime: formattedEnd,
         round: data.round,
         interviewDate: timestamp,
         companyName: data.companyName || undefined,
@@ -319,18 +378,46 @@ export function InterviewFormModal({
                 <Clock className="h-3.5 w-3.5" />
                 Start Time <span className="text-destructive">*</span>
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 10:00 AM"
-                disabled={!canEdit}
-                {...register("startTime")}
-                className={cn(
-                  "w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
-                  errors.startTime && "border-destructive focus:ring-destructive/20"
-                )}
-              />
-              {errors.startTime && (
-                <p className="text-xs text-destructive mt-0.5">{errors.startTime.message}</p>
+              
+              <div className="flex gap-1.5">
+                <select
+                  disabled={!canEdit}
+                  {...register("startHour")}
+                  className={cn(
+                    "flex-1 px-2 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                    errors.startHour && "border-destructive focus:ring-destructive/20"
+                  )}
+                >
+                  {["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <select
+                  disabled={!canEdit}
+                  {...register("startMinute")}
+                  className={cn(
+                    "flex-1 px-2 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                    errors.startMinute && "border-destructive focus:ring-destructive/20"
+                  )}
+                >
+                  {["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"].map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <select
+                  disabled={!canEdit}
+                  {...register("startPeriod")}
+                  className={cn(
+                    "px-1.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  )}
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
+              </div>
+              
+              {(errors.startHour || errors.startMinute || errors.startPeriod) && (
+                <p className="text-[10px] text-destructive mt-0.5">Start time is required</p>
               )}
             </div>
 
@@ -339,18 +426,46 @@ export function InterviewFormModal({
                 <Clock className="h-3.5 w-3.5" />
                 End Time <span className="text-destructive">*</span>
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 11:00 AM"
-                disabled={!canEdit}
-                {...register("endTime")}
-                className={cn(
-                  "w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
-                  errors.endTime && "border-destructive focus:ring-destructive/20"
-                )}
-              />
-              {errors.endTime && (
-                <p className="text-xs text-destructive mt-0.5">{errors.endTime.message}</p>
+
+              <div className="flex gap-1.5">
+                <select
+                  disabled={!canEdit}
+                  {...register("endHour")}
+                  className={cn(
+                    "flex-1 px-2 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                    errors.endHour && "border-destructive focus:ring-destructive/20"
+                  )}
+                >
+                  {["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <select
+                  disabled={!canEdit}
+                  {...register("endMinute")}
+                  className={cn(
+                    "flex-1 px-2 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                    errors.endMinute && "border-destructive focus:ring-destructive/20"
+                  )}
+                >
+                  {["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"].map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <select
+                  disabled={!canEdit}
+                  {...register("endPeriod")}
+                  className={cn(
+                    "px-1.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  )}
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
+              </div>
+
+              {(errors.endHour || errors.endMinute || errors.endPeriod) && (
+                <p className="text-[10px] text-destructive mt-0.5">End time is required</p>
               )}
             </div>
           </div>
