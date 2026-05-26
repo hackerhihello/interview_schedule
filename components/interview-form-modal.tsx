@@ -232,15 +232,22 @@ export function InterviewFormModal({
         clerkId: user?.id,
       };
 
+      let res;
       if (interviewId) {
         // Edit Mode
-        await updateInterview({
+        res = await updateInterview({
           id: interviewId as Id<"interviews">,
           ...payload,
         });
       } else {
         // Creation Mode
-        await createInterview(payload);
+        res = await createInterview(payload);
+      }
+
+      if (res && !res.success) {
+        setErrorMessage(res.error ?? "Failed to save the interview slot. Please try again.");
+        setIsSubmitting(false);
+        return;
       }
 
       reset();

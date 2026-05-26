@@ -103,7 +103,7 @@ export const create = mutation({
     const newEnd = parseTimeToMinutes(args.endTime);
 
     if (newStart >= newEnd) {
-      throw new ConvexError("Timing Conflict: End time must be strictly after start time.");
+      return { success: false, error: "Timing Conflict: End time must be strictly after start time." };
     }
 
     for (const item of sameDayInterviews) {
@@ -114,7 +114,10 @@ export const create = mutation({
 
       const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
       if (overlap) {
-        throw new ConvexError(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
+        return {
+          success: false,
+          error: `Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`
+        };
       }
     }
 
@@ -144,7 +147,7 @@ export const create = mutation({
       timestamp: Date.now(),
     });
 
-    return interviewId;
+    return { success: true, id: interviewId };
   },
 });
 
@@ -212,7 +215,7 @@ export const update = mutation({
       const newEnd = parseTimeToMinutes(finalEnd);
 
       if (newStart >= newEnd) {
-        throw new ConvexError("Timing Conflict: End time must be strictly after start time.");
+        return { success: false, error: "Timing Conflict: End time must be strictly after start time." };
       }
 
       for (const item of sameDayInterviews) {
@@ -224,7 +227,10 @@ export const update = mutation({
 
         const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
         if (overlap) {
-          throw new ConvexError(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
+          return {
+            success: false,
+            error: `Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`
+          };
         }
       }
     }
@@ -277,7 +283,7 @@ export const update = mutation({
       timestamp: Date.now(),
     });
 
-    return args.id;
+    return { success: true, id: args.id };
   },
 });
 
