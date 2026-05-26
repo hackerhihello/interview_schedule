@@ -259,7 +259,11 @@ export const getPaginated = query({
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx, args.clerkId);
     if (!user) {
-      throw new Error("Unauthorized: Please sign in.");
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: "",
+      };
     }
 
     // Perform queries & filter in-memory/in-handler for rich search capabilities
@@ -318,14 +322,18 @@ export const getAll = query({
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx, args.clerkId);
     if (!user) {
-      throw new Error("Unauthorized");
+      return [];
     }
 
     const q = ctx.db.query("interviews").order("desc");
     const interviews = await q.collect();
 
     let filtered = interviews;
-    if (args.assignedUserId) {
+    if (user.role !== "admin") {
+      // Standard users only see interviews assigned to them on their calendar
+      filtered = interviews.filter((i) => i.assignedUserId === user.clerkId);
+    } else if (args.assignedUserId) {
+      // Admins see everything, but can also filter by a specific interviewer
       filtered = interviews.filter((i) => i.assignedUserId === args.assignedUserId);
     }
 
@@ -341,7 +349,10 @@ export const getStats = query({
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx, args.clerkId);
     if (!user) {
-      throw new Error("Unauthorized");
+      return {
+        stats: { total: 0, upcoming: 0, completed: 0, cancelled: 0, passed: 0, failed: 0 },
+        charts: { roundData: [], statusData: [], timelineData: [] },
+      };
     }
 
     const isAdmin = user.role === "admin";

@@ -100,7 +100,10 @@ export const currentUser = query({
 export const getUsers = query({
   args: { clerkId: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    await assertAdmin(ctx, args.clerkId);
+    const user = await getCurrentUser(ctx, args.clerkId);
+    if (!user || user.role !== "admin") {
+      return [];
+    }
     return await ctx.db.query("users").order("desc").collect();
   },
 });

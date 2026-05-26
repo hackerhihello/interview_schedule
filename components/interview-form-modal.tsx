@@ -43,6 +43,7 @@ interface InterviewFormModalProps {
   onClose: () => void;
   interviewId?: string; // If provided, we are in Edit Mode
   onSuccess?: () => void;
+  defaultDate?: string; // e.g. "YYYY-MM-DD"
 }
 
 export function InterviewFormModal({
@@ -50,6 +51,7 @@ export function InterviewFormModal({
   onClose,
   interviewId,
   onSuccess,
+  defaultDate,
 }: InterviewFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -133,7 +135,7 @@ export function InterviewFormModal({
         startTime: "",
         endTime: "",
         round: "Technical Round",
-        interviewDate: "",
+        interviewDate: defaultDate || "",
         companyName: "",
         role: "",
         subject: "",
@@ -141,7 +143,7 @@ export function InterviewFormModal({
         assignedUserId: "",
       });
     }
-  }, [existingInterview, reset, isOpen]);
+  }, [existingInterview, reset, isOpen, defaultDate]);
 
   if (!isOpen) return null;
 
