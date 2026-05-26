@@ -331,7 +331,7 @@ export default function InterviewsPage() {
               ))
             ) : interviews.length > 0 ? (
               interviews.map((item) => {
-                const canEdit = isAdmin || item.createdBy === currentUser?.clerkId;
+                const canEdit = isAdmin || item.createdBy === currentUser?.clerkId || item.assignedUserId === currentUser?.clerkId;
                 const canDelete = isAdmin || item.createdBy === currentUser?.clerkId;
                 
                 return (

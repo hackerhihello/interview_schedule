@@ -82,7 +82,8 @@ export function InterviewFormModal({
 
   // Determine if the current user has permission to edit this interview slot
   const isCreator = existingInterview ? existingInterview.createdBy === currentUser?.clerkId : false;
-  const canEdit = !interviewId || isAdmin || isCreator;
+  const isAssignee = existingInterview ? existingInterview.assignedUserId === currentUser?.clerkId : false;
+  const canEdit = !interviewId || isAdmin || isCreator || isAssignee;
 
   // React Hook Form initialization
   const {

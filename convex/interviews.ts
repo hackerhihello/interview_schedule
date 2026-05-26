@@ -146,12 +146,13 @@ export const update = mutation({
       throw new Error("Interview not found.");
     }
 
-    // Role-based Access Control (Admins or Creators can edit)
+    // Role-based Access Control (Admins, Creators, or Assignees can edit)
     const isAdmin = user.role === "admin";
     const isCreator = existing.createdBy === user.clerkId;
+    const isAssignee = existing.assignedUserId === user.clerkId;
 
-    if (!isAdmin && !isCreator) {
-      throw new Error("Unauthorized: You can only edit interviews you scheduled yourself.");
+    if (!isAdmin && !isCreator && !isAssignee) {
+      throw new Error("Unauthorized: You can only edit interviews you scheduled or are assigned to.");
     }
 
     // Prepare update parameters
@@ -329,11 +330,8 @@ export const getAll = query({
     const interviews = await q.collect();
 
     let filtered = interviews;
-    if (user.role !== "admin") {
-      // Standard users only see interviews assigned to them on their calendar
-      filtered = interviews.filter((i) => i.assignedUserId === user.clerkId);
-    } else if (args.assignedUserId) {
-      // Admins see everything, but can also filter by a specific interviewer
+    if (args.assignedUserId) {
+      // Filter by a specific interviewer if provided
       filtered = interviews.filter((i) => i.assignedUserId === args.assignedUserId);
     }
 

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { InterviewFormModal } from "@/components/interview-form-modal";
 import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -40,8 +41,24 @@ export default function CalendarPage() {
   const hoverTimeoutRef = useRef<any>(null);
 
   // Queries (Convex stubs handle optional args beautifully)
-  const currentUser = useQuery(api.users.currentUser, {});
-  const interviews = useQuery(api.interviews.getAll, {}) || [];
+  const { user } = useUser();
+  const currentUser = useQuery(
+    api.users.currentUser,
+    user ? { clerkId: user.id } : "skip"
+  );
+  const interviews = useQuery(
+    api.interviews.getAll,
+    user ? { clerkId: user.id } : "skip"
+  ) || [];
+
+  if (!currentUser || !user) {
+    return (
+      <div className="h-[60vh] w-full flex flex-col items-center justify-center space-y-4">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary" />
+        <p className="text-xs text-muted-foreground animate-pulse">Loading calendar schedules...</p>
+      </div>
+    );
+  }
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -265,13 +282,7 @@ export default function CalendarPage() {
                   onMouseLeave={handleMouseLeaveCell}
                   onClick={() => {
                     setSelectedCellDate(cell);
-                    if (hasInterviews) {
-                      handleCellClick(cellInterviews, cell);
-                    } else if (isAdmin) {
-                      // Click clean empty cells as Admin to open schedule modal directly!
-                      setSelectedInterviewId(undefined);
-                      setIsOpenForm(true);
-                    }
+                    handleCellClick(cellInterviews, cell);
                   }}
                   className={cn(
                     "min-h-[85px] sm:min-h-[105px] p-2 flex flex-col justify-between transition-all group relative",
@@ -503,107 +514,122 @@ export default function CalendarPage() {
 
               {/* Scrollable list */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[50vh] scrollbar-thin">
-                {selectedDateInterviews.map((item) => {
-                  const initials = item.candidateName
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")
-                    .substring(0, 2)
-                    .toUpperCase();
+                {selectedDateInterviews.length > 0 ? (
+                  selectedDateInterviews.map((item) => {
+                    const initials = item.candidateName
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")
+                      .substring(0, 2)
+                      .toUpperCase();
 
-                  const isPassed = item.status === "passed";
-                  const isFailed = item.status === "failed";
-                  const isCancelled = item.status === "cancelled";
-                  const isScheduled = item.status === "scheduled";
-                  const isCompleted = item.status === "completed";
+                    const isPassed = item.status === "passed";
+                    const isFailed = item.status === "failed";
+                    const isCancelled = item.status === "cancelled";
+                    const isScheduled = item.status === "scheduled";
+                    const isCompleted = item.status === "completed";
 
-                  const canEdit =
-                    currentUser?.role === "admin" ||
-                    item.assignedUserId === currentUser?.clerkId;
+                    const canEdit =
+                      currentUser?.role === "admin" ||
+                      item.createdBy === currentUser?.clerkId ||
+                      item.assignedUserId === currentUser?.clerkId;
 
-                  return (
-                    <div
-                      key={item._id}
-                      className="p-4.5 rounded-2xl border border-border bg-card/65 dark:bg-card/25 flex gap-4 hover:border-primary/25 transition-all duration-300"
-                    >
-                      {/* Initials Avatar */}
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-white font-bold text-sm shadow-md">
-                        {initials}
-                      </div>
-
-                      {/* Details Container */}
-                      <div className="flex-1 min-w-0 space-y-2 text-left">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <h4 className="font-bold text-sm text-foreground truncate">
-                              {item.candidateName}
-                            </h4>
-                            {item.email && (
-                              <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground font-mono truncate">
-                                <Mail className="h-3 w-3 shrink-0" />
-                                <span>{item.email}</span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Status Badge */}
-                          <span className={cn(
-                            "px-2 py-0.5 rounded-full font-bold text-[8px] uppercase tracking-wider inline-flex items-center gap-1 shrink-0 border",
-                            isScheduled && "bg-blue-500/10 text-blue-500 border-blue-500/15",
-                            isCompleted && "bg-emerald-500/10 text-emerald-500 border-emerald-500/15",
-                            isCancelled && "bg-slate-500/10 text-slate-500 border-slate-500/15",
-                            isPassed && "bg-green-500/10 text-green-500 border-green-500/15",
-                            isFailed && "bg-rose-500/10 text-rose-500 border-rose-500/15"
-                          )}>
-                            <span>{item.status}</span>
-                          </span>
+                    return (
+                      <div
+                        key={item._id}
+                        className="p-4.5 rounded-2xl border border-border bg-card/65 dark:bg-card/25 flex gap-4 hover:border-primary/25 transition-all duration-300"
+                      >
+                        {/* Initials Avatar */}
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-white font-bold text-sm shadow-md">
+                          {initials}
                         </div>
 
-                        {/* Timings & Category details */}
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40">
-                          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                            <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="font-mono truncate">{item.startTime} - {item.endTime}</span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground truncate">
-                            <Layers className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-                            <span className="truncate">{item.round}</span>
-                          </div>
-                        </div>
-
-                        {/* Company & Role details */}
-                        {(item.companyName || item.role) && (
-                          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-secondary/30 p-2 rounded-lg border border-border/40 mt-1">
-                            <Briefcase className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            <span className="truncate font-semibold text-[9px]">
-                              {item.companyName || "N/A"} • {item.role || "N/A"}
+                        {/* Details Container */}
+                        <div className="flex-1 min-w-0 space-y-2 text-left">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h4 className="font-bold text-sm text-foreground truncate">
+                                {item.candidateName}
+                              </h4>
+                              {item.email && (
+                                <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-muted-foreground font-mono truncate">
+                                  <Mail className="h-3 w-3 shrink-0" />
+                                  <span>{item.email}</span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Status Badge */}
+                            <span className={cn(
+                              "px-2 py-0.5 rounded-full font-bold text-[8px] uppercase tracking-wider inline-flex items-center gap-1 shrink-0 border",
+                              isScheduled && "bg-blue-500/10 text-blue-500 border-blue-500/15",
+                              isCompleted && "bg-emerald-500/10 text-emerald-500 border-emerald-500/15",
+                              isCancelled && "bg-slate-500/10 text-slate-500 border-slate-500/15",
+                              isPassed && "bg-green-500/10 text-green-500 border-green-500/15",
+                              isFailed && "bg-rose-500/10 text-rose-500 border-rose-500/15"
+                            )}>
+                              <span>{item.status}</span>
                             </span>
                           </div>
+
+                          {/* Timings & Category details */}
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40">
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                              <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <span className="font-mono truncate">{item.startTime} - {item.endTime}</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground truncate">
+                              <Layers className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                              <span className="truncate">{item.round}</span>
+                            </div>
+                          </div>
+
+                          {/* Company & Role details */}
+                          {(item.companyName || item.role) && (
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-secondary/30 p-2 rounded-lg border border-border/40 mt-1">
+                              <Briefcase className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="truncate font-semibold text-[9px]">
+                                {item.companyName || "N/A"} • {item.role || "N/A"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Edit action button */}
+                        {canEdit && (
+                          <button
+                            onClick={() => {
+                              setSelectedDateInterviews(null); // Dismiss summary popover
+                              handleOpenEdit(item._id); // Open form dialog
+                            }}
+                            className="p-2.5 rounded-xl border border-border bg-card hover:bg-secondary text-primary transition-all self-center shrink-0 active:scale-95 shadow-sm cursor-pointer"
+                            title="Edit Slot Parameters"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
                         )}
                       </div>
-
-                      {/* Edit action button */}
-                      {canEdit && (
-                        <button
-                          onClick={() => {
-                            setSelectedDateInterviews(null); // Dismiss summary popover
-                            handleOpenEdit(item._id); // Open form dialog
-                          }}
-                          className="p-2.5 rounded-xl border border-border bg-card hover:bg-secondary text-primary transition-all self-center shrink-0 active:scale-95 shadow-sm cursor-pointer"
-                          title="Edit Slot Parameters"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
+                    );
+                  })
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 bg-secondary/5 border border-dashed border-border rounded-2xl">
+                    <div className="h-10 w-10 rounded-xl bg-secondary/40 border border-border flex items-center justify-center text-muted-foreground animate-pulse">
+                      <CalendarIcon className="h-5 w-5" />
                     </div>
-                  );
-                })}
+                    <div>
+                      <h4 className="font-bold text-foreground text-xs">No interviews scheduled</h4>
+                      <p className="text-[10px] text-muted-foreground mt-1 max-w-[200px] mx-auto leading-normal">
+                        Click "Add Interview" below to schedule a session for this day.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Footer */}
               <div className="p-6 border-t border-border bg-secondary/10 flex items-center justify-between gap-3">
-                {isAdmin && (
+                {user && (
                   <button
                     onClick={() => {
                       setSelectedDateInterviews(null); // Close summary popup
