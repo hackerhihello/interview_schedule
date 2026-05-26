@@ -108,6 +108,22 @@ export const getUsers = query({
   },
 });
 
+// Fetch users who are pending access approval (Admin only)
+export const getPendingUsers = query({
+  args: { clerkId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx, args.clerkId);
+    if (!user || user.role !== "admin") {
+      return [];
+    }
+    return await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("status"), "pending"))
+      .collect();
+  },
+});
+
+
 // Update a user's role (Admin only)
 export const updateRole = mutation({
   args: {

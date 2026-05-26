@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -12,6 +13,7 @@ import {
   ArrowRight,
   Ban,
   Check,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +31,23 @@ export default function UsersPage() {
   const updateRole = useMutation(api.users.updateRole);
   const updateStatus = useMutation(api.users.updateStatus);
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Retrieve initial search parameter in a browser-safe way
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const search = params.get("search");
+      if (search) {
+        setSearchTerm(search);
+      }
+    }
+  }, []);
+
   if (!currentUser) {
     return <UsersSkeleton />;
   }
+
 
   const isAdmin = currentUser.role === "admin";
 
@@ -116,6 +132,16 @@ export default function UsersPage() {
     }
   };
 
+  const filteredUsers = users?.filter((u) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      u.name.toLowerCase().includes(term) ||
+      u.email.toLowerCase().includes(term) ||
+      u.clerkId.toLowerCase().includes(term)
+    );
+  });
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Page Header */}
@@ -124,6 +150,28 @@ export default function UsersPage() {
         <p className="text-sm text-muted-foreground">
           View authenticated credentials, audit access parameters, and manage administration permissions
         </p>
+      </div>
+
+      {/* Search Input Filter bar */}
+      <div className="flex items-center gap-3 max-w-md">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-border bg-card/45 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Directory Table */}
@@ -140,7 +188,7 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60 text-xs font-medium text-foreground">
-            {!users ? (
+            {!filteredUsers ? (
               [1, 2].map((i) => (
                 <tr key={i} className="animate-pulse">
                   <td className="p-4 pl-6"><div className="h-6 w-24 bg-secondary rounded" /></td>
@@ -151,14 +199,21 @@ export default function UsersPage() {
                   <td className="p-4 pr-6 text-right"><div className="h-8 w-24 bg-secondary rounded ml-auto" /></td>
                 </tr>
               ))
-            ) : users.length > 0 ? (
-              users.map((userItem) => {
+            ) : filteredUsers.length > 0 ? (
+              filteredUsers.map((userItem) => {
                 const isSelf = userItem.clerkId === currentUser.clerkId;
+                const isHighlighted = searchTerm && (
+                  userItem.email.toLowerCase() === searchTerm.toLowerCase() ||
+                  userItem.name.toLowerCase() === searchTerm.toLowerCase()
+                );
                 
                 return (
                   <tr
                     key={userItem._id}
-                    className="hover:bg-secondary/20 transition-all duration-200"
+                    className={cn(
+                      "hover:bg-secondary/20 transition-all duration-200",
+                      isHighlighted && "bg-primary/5 dark:bg-primary/10 border-l-2 border-primary"
+                    )}
                   >
                     {/* User Details */}
                     <td className="p-4 pl-6">
@@ -284,8 +339,8 @@ export default function UsersPage() {
               })
             ) : (
               <tr>
-                <td colSpan={5} className="p-12 text-center text-muted-foreground">
-                  No registered accounts located.
+                <td colSpan={6} className="p-12 text-center text-muted-foreground animate-fade-in">
+                  No matching user accounts located.
                 </td>
               </tr>
             )}
