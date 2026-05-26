@@ -451,10 +451,10 @@ export const getStats = query({
 
     // Key counts
     const total = relevantInterviews.length;
-    const upcoming = relevantInterviews.filter(
-      (i) => i.status === "scheduled" && i.interviewDate >= todayTimestamp
+    const upcoming = relevantInterviews.filter((i) => i.status === "scheduled").length;
+    const completed = relevantInterviews.filter(
+      (i) => i.status === "completed" || i.status === "passed" || i.status === "failed"
     ).length;
-    const completed = relevantInterviews.filter((i) => i.status === "completed").length;
     const cancelled = relevantInterviews.filter((i) => i.status === "cancelled").length;
     const passed = relevantInterviews.filter((i) => i.status === "passed").length;
     const failed = relevantInterviews.filter((i) => i.status === "failed").length;
