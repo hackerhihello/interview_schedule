@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query, MutationCtx, QueryCtx } from "./_generated/server";
 import { getCurrentUser, assertAdmin } from "./users";
 import { paginationOptsValidator } from "convex/server";
@@ -85,12 +85,12 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx, args.clerkId);
     if (!user) {
-      throw new Error("Unauthorized: Please sign in.");
+      throw new ConvexError("Unauthorized: Please sign in.");
     }
 
     const isApproved = user.status === "approved" || !user.status;
     if (!isApproved) {
-      throw new Error("Unauthorized: Your account access is pending approval.");
+      throw new ConvexError("Unauthorized: Your account access is pending approval.");
     }
 
     // Validate overlapping interviews on the same day
@@ -103,7 +103,7 @@ export const create = mutation({
     const newEnd = parseTimeToMinutes(args.endTime);
 
     if (newStart >= newEnd) {
-      throw new Error("Timing Conflict: End time must be strictly after start time.");
+      throw new ConvexError("Timing Conflict: End time must be strictly after start time.");
     }
 
     for (const item of sameDayInterviews) {
@@ -114,7 +114,7 @@ export const create = mutation({
 
       const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
       if (overlap) {
-        throw new Error(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
+        throw new ConvexError(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
       }
     }
 
@@ -176,12 +176,12 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx, args.clerkId);
     if (!user) {
-      throw new Error("Unauthorized: Please sign in.");
+      throw new ConvexError("Unauthorized: Please sign in.");
     }
 
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Interview not found.");
+      throw new ConvexError("Interview not found.");
     }
 
     // Role-based Access Control (Admins, Creators, or Assignees can edit)
@@ -190,7 +190,7 @@ export const update = mutation({
     const isAssignee = existing.assignedUserId === user.clerkId;
 
     if (!isAdmin && !isCreator && !isAssignee) {
-      throw new Error("Unauthorized: You can only edit interviews you scheduled or are assigned to.");
+      throw new ConvexError("Unauthorized: You can only edit interviews you scheduled or are assigned to.");
     }
 
     // Validate overlapping interviews on the same day if date or times change
@@ -212,7 +212,7 @@ export const update = mutation({
       const newEnd = parseTimeToMinutes(finalEnd);
 
       if (newStart >= newEnd) {
-        throw new Error("Timing Conflict: End time must be strictly after start time.");
+        throw new ConvexError("Timing Conflict: End time must be strictly after start time.");
       }
 
       for (const item of sameDayInterviews) {
@@ -224,7 +224,7 @@ export const update = mutation({
 
         const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
         if (overlap) {
-          throw new Error(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
+          throw new ConvexError(`Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`);
         }
       }
     }

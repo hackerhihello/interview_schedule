@@ -248,10 +248,13 @@ export function InterviewFormModal({
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to save the interview slot. Please try again.";
+      let message = "Failed to save the interview slot. Please try again.";
+      if (err instanceof Error) {
+        // Strip ConvexError and Uncaught Error wrapper prefixes for clean UI presentation
+        message = err.message
+          .replace(/^ConvexError:\s*/i, "")
+          .replace(/^Uncaught Error:\s*/i, "");
+      }
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
