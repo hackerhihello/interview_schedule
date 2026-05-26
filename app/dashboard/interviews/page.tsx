@@ -52,10 +52,11 @@ export default function InterviewsPage() {
     currentUser && isAdmin ? { clerkId: user?.id } : "skip"
   ) || [];
 
-  // Date timestamp converter
-  const dateTimestamp = selectedDate
-    ? new Date(selectedDate).getTime()
-    : undefined;
+  // Date timestamp converter (uses local midnight to match stored timestamps)
+  const dateTimestamp = selectedDate ? (() => {
+    const [year, month, day] = selectedDate.split("-").map(Number);
+    return new Date(year, month - 1, day).getTime();
+  })() : undefined;
 
   // Fetch paginated results from Convex
   const paginatedResult = useQuery(
