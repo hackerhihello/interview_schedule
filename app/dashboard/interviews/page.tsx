@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -19,12 +20,21 @@ import {
   UserX,
   ChevronDown,
 } from "lucide-react";
+import { toast } from "sonner";
 import { InterviewFormModal } from "@/components/interview-form-modal";
 import { cn } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 8;
 
 export default function InterviewsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-muted-foreground animate-pulse">Loading scheduling data...</div>}>
+      <InterviewsContent />
+    </Suspense>
+  );
+}
+
+function InterviewsContent() {
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [selectedInterviewId, setSelectedInterviewId] = useState<string | undefined>(undefined);
   
@@ -37,6 +47,15 @@ export default function InterviewsPage() {
 
   // Pagination cursor state
   const [numResults, setNumResults] = useState(ITEMS_PER_PAGE);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const s = searchParams?.get("search");
+    if (s) {
+      setSearchTerm(s);
+    }
+  }, [searchParams]);
 
   // Queries & Mutations
   const { user } = useUser();
@@ -103,9 +122,10 @@ export default function InterviewsPage() {
     }
     try {
       await deleteInterview({ id, clerkId: user?.id });
+      toast.success("Schedule successfully deleted");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to delete schedule";
-      alert(message);
+      toast.error(message);
     }
   };
 
@@ -119,9 +139,10 @@ export default function InterviewsPage() {
         status,
         clerkId: user?.id,
       });
+      toast.success(`Status updated to ${status}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to update status";
-      alert(message);
+      toast.error(message);
     }
   };
 
@@ -425,8 +446,8 @@ export default function InterviewsPage() {
                     <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {/* Quick Outcome Promoters (For editors) */}
-                        {canEdit && item.status === "scheduled" && (
-                          <div className="hidden lg:flex items-center gap-1 bg-secondary/35 border border-border p-0.5 rounded-lg mr-1.5">
+                        {canEdit && item.status !== "cancelled" && (
+                          <div className="flex items-center gap-1 bg-secondary/35 border border-border p-0.5 rounded-lg mr-1.5">
                             <button
                               onClick={() => handleUpdateStatus(item._id, "passed")}
                               className="p-1 rounded text-emerald-500 hover:bg-emerald-500/15 transition-all"

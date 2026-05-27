@@ -81,6 +81,15 @@ export const create = mutation({
     email: v.optional(v.string()),
     assignedUserId: v.optional(v.string()), // clerkId of the assigned user
     clerkId: v.optional(v.string()),
+    status: v.optional(
+      v.union(
+        v.literal("scheduled"),
+        v.literal("completed"),
+        v.literal("cancelled"),
+        v.literal("passed"),
+        v.literal("failed")
+      )
+    ),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx, args.clerkId);
@@ -91,6 +100,12 @@ export const create = mutation({
     const isApproved = user.status === "approved" || !user.status;
     if (!isApproved) {
       throw new ConvexError("Unauthorized: Your account access is pending approval.");
+    }
+
+    // Validate that the scheduled time is not in the past
+    const scheduledStart = args.interviewDate + parseTimeToMinutes(args.startTime) * 60 * 1000;
+    if (scheduledStart < Date.now()) {
+      return { success: false, error: "Timing Conflict: Cannot schedule an interview in the past." };
     }
 
     // Validate overlapping interviews on the same day
@@ -109,15 +124,28 @@ export const create = mutation({
     for (const item of sameDayInterviews) {
       if (item.status === "cancelled") continue;
 
+      // Implementation Plan: Relax timing conflict logic. Only block if SAME interviewer or SAME candidate.
+      const isSameInterviewer = item.assignedUserId && args.assignedUserId && item.assignedUserId === args.assignedUserId;
+      const isSameCandidate = item.candidateName.toLowerCase().trim() === args.candidateName.toLowerCase().trim();
+      
+      if (!isSameInterviewer && !isSameCandidate) continue;
+
       const existingStart = parseTimeToMinutes(item.startTime);
       const existingEnd = parseTimeToMinutes(item.endTime);
 
       const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
       if (overlap) {
-        return {
-          success: false,
-          error: `Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`
-        };
+        if (isSameInterviewer) {
+          return {
+            success: false,
+            error: `Timing Conflict: The selected interviewer is already booked on this date between ${item.startTime} and ${item.endTime}.`
+          };
+        } else {
+          return {
+            success: false,
+            error: `Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`
+          };
+        }
       }
     }
 
@@ -131,7 +159,7 @@ export const create = mutation({
       role: args.role,
       subject: args.subject,
       email: args.email,
-      status: "scheduled",
+      status: args.status || "scheduled",
       createdBy: user.clerkId,
       assignedUserId: args.assignedUserId,
       createdAt: Date.now(),
@@ -206,6 +234,14 @@ export const update = mutation({
       args.startTime !== undefined ||
       args.endTime !== undefined
     ) {
+      // Validate that the scheduled time is not in the past if date or start time changes
+      if (args.interviewDate !== undefined || args.startTime !== undefined) {
+        const scheduledStart = finalDate + parseTimeToMinutes(finalStart) * 60 * 1000;
+        if (scheduledStart < Date.now()) {
+          return { success: false, error: "Timing Conflict: Cannot schedule an interview in the past." };
+        }
+      }
+
       const sameDayInterviews = await ctx.db
         .query("interviews")
         .withIndex("by_date", (q) => q.eq("interviewDate", finalDate))
@@ -218,19 +254,34 @@ export const update = mutation({
         return { success: false, error: "Timing Conflict: End time must be strictly after start time." };
       }
 
+      const finalCandidateName = args.candidateName !== undefined ? args.candidateName : existing.candidateName;
+      const finalAssignedUserId = args.assignedUserId !== undefined ? args.assignedUserId : existing.assignedUserId;
+
       for (const item of sameDayInterviews) {
         if (item._id === args.id) continue; // Skip self
         if (item.status === "cancelled") continue;
+
+        const isSameInterviewer = item.assignedUserId && finalAssignedUserId && item.assignedUserId === finalAssignedUserId;
+        const isSameCandidate = item.candidateName.toLowerCase().trim() === finalCandidateName.toLowerCase().trim();
+        
+        if (!isSameInterviewer && !isSameCandidate) continue;
 
         const existingStart = parseTimeToMinutes(item.startTime);
         const existingEnd = parseTimeToMinutes(item.endTime);
 
         const overlap = Math.max(newStart, existingStart) < Math.min(newEnd, existingEnd);
         if (overlap) {
-          return {
-            success: false,
-            error: `Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`
-          };
+          if (isSameInterviewer) {
+            return {
+              success: false,
+              error: `Timing Conflict: The selected interviewer is already booked on this date between ${item.startTime} and ${item.endTime}.`
+            };
+          } else {
+            return {
+              success: false,
+              error: `Timing Conflict: There is already an active interview scheduled for candidate "${item.candidateName}" on this date between ${item.startTime} and ${item.endTime}.`
+            };
+          }
         }
       }
     }

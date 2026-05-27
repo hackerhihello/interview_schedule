@@ -32,7 +32,7 @@ export default function DashboardLayout({
         await syncUser({
           clerkId: user.id,
           name: user.fullName || user.username || "Anonymous User",
-          email: user.primaryEmailAddress?.emailAddress || "",
+          email: user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || "",
           imageUrl: user.imageUrl,
         });
         setHasSynced(true);
@@ -110,7 +110,7 @@ export default function DashboardLayout({
             <div className="p-3.5 rounded-xl bg-secondary/35 border border-border text-left">
               <span className="text-[10px] font-bold text-muted-foreground block uppercase tracking-wider">Registered Identity</span>
               <span className="text-xs font-bold text-foreground block mt-0.5 truncate">{currentUser.name}</span>
-              <span className="text-[10px] text-muted-foreground block truncate font-mono mt-0.5">{currentUser.email}</span>
+              <span className="text-[10px] text-muted-foreground block break-all font-mono mt-0.5">{currentUser.email}</span>
             </div>
 
             <SignOutButton redirectUrl="/sign-in">

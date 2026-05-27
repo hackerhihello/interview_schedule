@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "sonner";
 import { useMutation, useQuery } from "convex/react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -24,7 +25,7 @@ import { cn } from "@/lib/utils";
 
 // Form Validation Schema using Zod
 const interviewFormSchema = z.object({
-  candidateName: z.string().min(2, "Candidate name must be at least 2 characters"),
+  candidateName: z.string().min(6, "Candidate name must be at least 6 characters"),
   startHour: z.string().min(1, "Hour is required"),
   startMinute: z.string().min(1, "Minute is required"),
   startPeriod: z.string().min(1, "Period is required"),
@@ -38,6 +39,7 @@ const interviewFormSchema = z.object({
   subject: z.string().optional(),
   email: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   assignedUserId: z.string().optional(),
+  status: z.string().optional(),
 });
 
 type InterviewFormValues = z.infer<typeof interviewFormSchema>;
@@ -58,7 +60,6 @@ export function InterviewFormModal({
   defaultDate,
 }: InterviewFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Mutations & Queries
   const { user } = useUser();
@@ -112,6 +113,7 @@ export function InterviewFormModal({
       subject: "",
       email: "",
       assignedUserId: "",
+      status: "scheduled",
     },
   });
 
@@ -156,6 +158,7 @@ export function InterviewFormModal({
         subject: existingInterview.subject || "",
         email: existingInterview.email || "",
         assignedUserId: existingInterview.assignedUserId || "",
+        status: existingInterview.status || "scheduled",
       });
     } else {
       // Clear form for creation
@@ -174,6 +177,7 @@ export function InterviewFormModal({
         subject: "",
         email: "",
         assignedUserId: "",
+        status: "scheduled",
       });
     }
   }, [existingInterview, reset, isOpen, defaultDate]);
@@ -184,7 +188,6 @@ export function InterviewFormModal({
     if (!canEdit) return; // Prevent submission in read-only mode
 
     setIsSubmitting(true);
-    setErrorMessage(null);
 
     // Helpers to convert to minutes for timezone and start/end check
     const parseTimeToMinutes = (timeStr: string) => {
@@ -207,7 +210,7 @@ export function InterviewFormModal({
     const endMin = parseTimeToMinutes(formattedEnd);
 
     if (startMin >= endMin) {
-      setErrorMessage("Timing Conflict: End time must be strictly after start time.");
+      toast.error("Timing Conflict: End time must be strictly after start time.");
       setIsSubmitting(false);
       return;
     }
@@ -218,7 +221,31 @@ export function InterviewFormModal({
       const dateObj = new Date(year, month - 1, day);
       const timestamp = dateObj.getTime();
 
-      const payload = {
+      // Temporal validation check: prevent past date/time scheduling if it is new or if date/start-time is updated
+      const isDateChanged = !existingInterview || existingInterview.interviewDate !== timestamp;
+      const isStartChanged = !existingInterview || existingInterview.startTime !== formattedStart;
+
+      if (isDateChanged || isStartChanged) {
+        const today = new Date();
+        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+
+        if (timestamp < todayMidnight) {
+          toast.error("Timing Conflict: Cannot schedule an interview in the past.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (timestamp === todayMidnight) {
+          const currentMinutes = today.getHours() * 60 + today.getMinutes();
+          if (startMin <= currentMinutes) {
+            toast.error("Timing Conflict: Cannot schedule an interview at a time that has already passed today.");
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
+      const payload: any = {
         candidateName: data.candidateName,
         startTime: formattedStart,
         endTime: formattedEnd,
@@ -237,6 +264,7 @@ export function InterviewFormModal({
         // Edit Mode
         res = await updateInterview({
           id: interviewId as Id<"interviews">,
+          status: (data.status as "scheduled" | "completed" | "cancelled" | "passed" | "failed") || undefined,
           ...payload,
         });
       } else {
@@ -245,12 +273,14 @@ export function InterviewFormModal({
       }
 
       if (res && !res.success) {
-        setErrorMessage(res.error ?? "Failed to save the interview slot. Please try again.");
+        toast.error(res.error ?? "Failed to save the interview slot. Please try again.");
         setIsSubmitting(false);
         return;
       }
 
       reset();
+      // Implementation Plan: Success Alert for Interview Creation
+      toast.success(interviewId ? "Interview details successfully updated!" : "Interview successfully scheduled!");
       onClose();
       if (onSuccess) onSuccess();
     } catch (err) {
@@ -262,7 +292,7 @@ export function InterviewFormModal({
           .replace(/^ConvexError:\s*/i, "")
           .replace(/^Uncaught Error:\s*/i, "");
       }
-      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -308,11 +338,6 @@ export function InterviewFormModal({
           onSubmit={handleSubmit(onSubmit)}
           className="flex-1 overflow-y-auto p-6 space-y-5"
         >
-          {errorMessage && (
-            <div className="p-3.5 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-medium animate-pulse">
-              {errorMessage}
-            </div>
-          )}
 
           {/* Candidate Name (Required) */}
           <div className="space-y-1.5">
@@ -344,6 +369,7 @@ export function InterviewFormModal({
               </label>
               <input
                 type="date"
+                min={new Date().toISOString().split("T")[0]}
                 disabled={!canEdit}
                 {...register("interviewDate")}
                 className={cn(
@@ -578,6 +604,27 @@ export function InterviewFormModal({
             existingInterview?.assignedUserId && (
               <input type="hidden" {...register("assignedUserId")} />
             )
+          )}
+
+          {/* Status Selection (Edit Mode Only) */}
+          {interviewId && canEdit && (
+            <div className="space-y-1.5 animate-fade-in border-t border-border/60 pt-4 mt-2">
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                <CheckCircle className="h-3.5 w-3.5" />
+                Interview Status
+              </label>
+              <select
+                disabled={!canEdit}
+                {...register("status")}
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              >
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="passed">Outcome: Passed</option>
+                <option value="failed">Outcome: Failed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           )}
         </form>
 

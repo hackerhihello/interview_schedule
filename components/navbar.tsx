@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Menu, X, Bell, Search, Copy, Check, ExternalLink, UserCheck, Loader2 } from "lucide-react";
+import { Menu, X, Bell, Copy, Check, ExternalLink, UserCheck, Loader2 } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { SidebarNav } from "./sidebar-nav";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,6 @@ export function Navbar() {
   const { user } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [copiedUserId, setCopiedUserId] = useState<string | null>(null);
   const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
 
@@ -37,14 +36,7 @@ export function Navbar() {
   const pendingCount = isAdmin ? (pendingUsers?.length || 0) : 0;
 
   // Filter pending users inside dropdown
-  const filteredPending = pendingUsers?.filter((u) => {
-    if (!searchQuery) return true;
-    const term = searchQuery.toLowerCase();
-    return (
-      u.name.toLowerCase().includes(term) ||
-      u.email.toLowerCase().includes(term)
-    );
-  });
+  const filteredPending = pendingUsers;
 
   const handleCopyEmail = async (e: React.MouseEvent, email: string, userId: string) => {
     e.stopPropagation();
@@ -116,16 +108,8 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Right Side: Global Search, Notifications, Theme, Profile */}
+        {/* Right Side: Notifications, Theme, Profile */}
         <div className="flex items-center gap-4">
-          {/* Quick-search bar mockup */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:border-muted-foreground/30 transition-all text-xs w-60 cursor-not-allowed">
-            <Search className="h-3.5 w-3.5" />
-            <span>Search scheduled slots...</span>
-            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-              ⌘K
-            </kbd>
-          </div>
 
           {/* Real-time Notifications Popover */}
           <div className="relative">
@@ -173,29 +157,6 @@ export function Navbar() {
                     )}
                   </div>
 
-                  {/* Search Bar - only show if there are pending users initially */}
-                  {isAdmin && pendingUsers && pendingUsers.length > 0 && (
-                    <div className="p-3 border-b border-border bg-card/50">
-                      <div className="relative">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                        <input
-                          type="text"
-                          placeholder="Search pending requests..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full pl-8 pr-8 py-1.5 rounded-xl border border-border bg-secondary/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all text-xs"
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => setSearchQuery("")}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all cursor-pointer bg-transparent border-0"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
                   {/* List Content */}
                   <div className="max-h-[320px] overflow-y-auto divide-y divide-border/60">
@@ -275,7 +236,7 @@ export function Navbar() {
                         <img src="/logo.png" className="h-8 w-8 object-contain opacity-55 animate-pulse" alt="Logo" />
                         <span className="font-semibold text-foreground">All Caught Up!</span>
                         <span className="text-[10px] text-muted-foreground/80 leading-relaxed px-4">
-                          {searchQuery ? "No pending access requests match your search criteria." : "All registered user accounts are currently approved and active."}
+                          All registered user accounts are currently approved and active.
                         </span>
                       </div>
                     )}

@@ -7,7 +7,7 @@ export default function SignInPage() {
       <div className="absolute top-[-20%] left-[-20%] h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-[100px]" />
       <div className="absolute bottom-[-20%] right-[-20%] h-[500px] w-[500px] rounded-full bg-violet-600/5 blur-[100px]" />
 
-      <div className="relative p-6 rounded-3xl bg-white/[0.02] backdrop-blur-md shadow-2xl border border-white/5 max-w-sm w-full flex justify-center animate-fade-in">
+      <div className="relative p-6 rounded-3xl bg-white/[0.02] backdrop-blur-md shadow-2xl border border-white/5 w-full max-w-md flex justify-center animate-fade-in">
         <SignIn
           appearance={{
             elements: {
