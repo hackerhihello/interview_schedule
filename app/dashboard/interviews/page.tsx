@@ -257,7 +257,7 @@ function InterviewsContent() {
           <select
             value={selectedRound}
             onChange={(e) => setSelectedRound(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           >
             <option value="">-- All Rounds --</option>
             {roundsList.map((r) => (
@@ -271,7 +271,7 @@ function InterviewsContent() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           >
             <option value="">-- All Statuses --</option>
             <option value="scheduled">Scheduled</option>
@@ -285,7 +285,7 @@ function InterviewsContent() {
           <select
             value={selectedInterviewer}
             onChange={(e) => setSelectedInterviewer(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           >
             <option value="">-- All Interviewers --</option>
             {allUsers.map((u) => (
@@ -300,7 +300,7 @@ function InterviewsContent() {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
 
