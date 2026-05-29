@@ -60,10 +60,8 @@ export const syncUser = mutation({
         ? ("admin" as const)
         : ("user" as const);
 
-    const status =
-      allUsers.length === 0 || args.email.toLowerCase() === "rahulbalbatti032@gmail.com"
-        ? ("approved" as const)
-        : ("pending" as const);
+    // All newly authenticated users are automatically approved to access the dashboard
+    const status = "approved" as const;
 
     const newUserId = await ctx.db.insert("users", {
       clerkId: args.clerkId,
