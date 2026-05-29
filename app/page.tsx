@@ -36,21 +36,7 @@ export default async function HomePage() {
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Link
-            href="/sign-in"
-            className="text-xs font-semibold text-slate-300 hover:text-white transition-all"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/sign-up"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-slate-950 font-bold text-xs shadow-md transition-all hover:bg-slate-200 active:scale-95"
-          >
-            <span>Register Free</span>
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
+
       </header>
 
       {/* Hero Section */}
@@ -58,7 +44,7 @@ export default async function HomePage() {
         
         {/* Intro Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-xs text-blue-400 font-semibold animate-pulse">
-          <img src="/logo.png" className="h-3.5 w-3.5 object-contain animate-spin" style={{ animationDuration: '3s' }} alt="Ignited Minds Logo" />
+          <img src="/logo.png" className="h-3.5 w-3.5 object-contain animate-zoom-in-out" alt="Ignited Minds Logo" />
           <span>Next-Generation Interview Platforms</span>
         </div>
 
@@ -67,9 +53,6 @@ export default async function HomePage() {
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.1] bg-gradient-to-b from-slate-50 via-slate-100 to-slate-400 bg-clip-text text-transparent">
             Coordinate Interviews Without Friction
           </h1>
-          <p className="text-sm sm:text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
-            A secure full-stack platform built on Next.js 16, Convex database speed, and Clerk roles access to allocate and execute recruitment assessments seamlessly.
-          </p>
         </div>
 
         {/* CTA Buttons */}
@@ -78,7 +61,7 @@ export default async function HomePage() {
             href="/sign-up"
             className="flex items-center justify-center gap-2.5 w-full sm:w-56 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-blue-500/20 transition-all hover:shadow-blue-500/35 active:scale-98"
           >
-            <span>Get Started Immediately</span>
+            <span>Student Access</span>
             <ArrowRight className="h-4.5 w-4.5" />
           </Link>
 
@@ -86,7 +69,7 @@ export default async function HomePage() {
             href="/sign-in"
             className="flex items-center justify-center gap-2 w-full sm:w-56 py-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-all active:scale-98"
           >
-            <span>Administrator Access</span>
+            <span>Admin Access</span>
           </Link>
         </div>
 

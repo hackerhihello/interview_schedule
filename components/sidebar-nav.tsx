@@ -20,9 +20,10 @@ import { cn } from "@/lib/utils";
 
 interface SidebarNavProps {
   className?: string;
+  onNavigate?: () => void;
 }
 
-export function SidebarNav({ className }: SidebarNavProps) {
+export function SidebarNav({ className, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useUser();
@@ -113,6 +114,7 @@ export function SidebarNav({ className }: SidebarNavProps) {
             <Link
               key={link.href}
               href={link.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3.5 px-3.5 py-3 rounded-xl font-medium text-sm transition-all duration-200 group relative",
                 isActive

@@ -301,7 +301,10 @@ export function Navbar() {
           </div>
           
           {/* Actual Sidebar Content */}
-          <SidebarNav className="w-full border-r-0" />
+          <SidebarNav 
+            className="w-full border-r-0" 
+            onNavigate={() => setIsMobileMenuOpen(false)} 
+          />
         </div>
       </div>
     </>

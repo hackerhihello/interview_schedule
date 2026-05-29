@@ -10,6 +10,7 @@
 
 import type * as activity from "../activity.js";
 import type * as interviews from "../interviews.js";
+import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 
 import type {
@@ -21,6 +22,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   activity: typeof activity;
   interviews: typeof interviews;
+  seed: typeof seed;
   users: typeof users;
 }>;
 
