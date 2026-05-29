@@ -9,6 +9,10 @@ export default function SignInPage() {
 
       <div className="relative p-6 rounded-3xl bg-white/[0.02] backdrop-blur-md shadow-2xl border border-white/5 w-full max-w-md flex justify-center animate-fade-in">
         <SignIn
+          routing="path"
+          path="/sign-in"
+          fallbackRedirectUrl="/dashboard"
+          signUpUrl="/sign-up"
           appearance={{
             elements: {
               card: "bg-transparent shadow-none border-none w-full",
