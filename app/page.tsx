@@ -56,20 +56,13 @@ export default async function HomePage() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-          <Link
-            href="/sign-up"
-            className="flex items-center justify-center gap-2.5 w-full sm:w-56 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-blue-500/20 transition-all hover:shadow-blue-500/35 active:scale-98"
-          >
-            <span>Student Access</span>
-            <ArrowRight className="h-4.5 w-4.5" />
-          </Link>
-
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto mt-4">
           <Link
             href="/sign-in"
-            className="flex items-center justify-center gap-2 w-full sm:w-56 py-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-all active:scale-98"
+            className="group flex items-center justify-center gap-3 w-full sm:w-64 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-xl shadow-blue-500/20 border border-white/10 transition-all duration-300 hover:shadow-blue-500/40 hover:scale-105 active:scale-95"
           >
-            <span>Admin Access</span>
+            <span className="tracking-widest uppercase text-xs">Enter Secure Portal</span>
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
