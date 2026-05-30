@@ -331,7 +331,7 @@ function InterviewsContent() {
                   if (iso) setSelectedDate(iso);
                   if (!v) setSelectedDate("");
                 }}
-                className="w-full bg-transparent text-foreground text-xs outline-none"
+                className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground text-xs outline-none"
               />
             </div>
 
