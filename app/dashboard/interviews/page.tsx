@@ -44,6 +44,7 @@ function InterviewsContent() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedInterviewer, setSelectedInterviewer] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [mobileDateInput, setMobileDateInput] = useState("");
 
   // Pagination cursor state
   const [numResults, setNumResults] = useState(ITEMS_PER_PAGE);
@@ -76,6 +77,24 @@ function InterviewsContent() {
     const [year, month, day] = selectedDate.split("-").map(Number);
     return new Date(year, month - 1, day).getTime();
   })() : undefined;
+
+  // Helpers to convert between display (dd-mm-yyyy) and ISO (YYYY-MM-DD)
+  const formatToDisplay = (iso?: string) => {
+    if (!iso) return "";
+    const [y, m, d] = iso.split("-");
+    return `${d}-${m}-${y}`;
+  };
+
+  const parseDisplayToISO = (display: string) => {
+    const m = display.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (!m) return undefined;
+    const [, dd, mm, yyyy] = m;
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  useEffect(() => {
+    setMobileDateInput(formatToDisplay(selectedDate));
+  }, [selectedDate]);
 
   // Fetch paginated results from Convex
   const paginatedResult = useQuery(
@@ -296,12 +315,37 @@ function InterviewsContent() {
           </select>
 
           {/* Date Picker */}
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-          />
+          <div className="flex items-center gap-3">
+            {/* Mobile: use a text input so placeholder is visible and users can type dd-mm-yyyy */}
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-2.5 w-full md:hidden">
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="dd-mm-yyyy"
+                aria-label="Filter by interview date (dd-mm-yyyy)"
+                value={mobileDateInput}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setMobileDateInput(v);
+                  const iso = parseDisplayToISO(v);
+                  if (iso) setSelectedDate(iso);
+                  if (!v) setSelectedDate("");
+                }}
+                className="w-full bg-transparent text-foreground text-xs outline-none"
+              />
+            </div>
+
+            {/* Desktop: use native date input for convenience */}
+            <div className="hidden md:flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-2.5 w-full">
+              <input
+                type="date"
+                aria-label="Filter by interview date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex-1 min-w-0 bg-transparent text-foreground text-xs outline-none"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Clear Filters indicator */}
