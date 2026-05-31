@@ -11,6 +11,9 @@ const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 const convex = new ConvexReactClient(convexUrl);
 
+// Debug: ensure runtime envs are visible in browser console (no secrets)
+console.log('DEBUG: convexUrl=', convexUrl, 'publishableKeyPresent=', !!clerkKey);
+
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   return (
     <ClerkProvider publishableKey={clerkKey}>

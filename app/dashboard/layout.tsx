@@ -16,6 +16,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isLoaded: isClerkLoaded, isSignedIn, user } = useUser();
+  // Debug: surface Clerk load/signed-in state in console
+  console.log('DEBUG: isClerkLoaded=', isClerkLoaded, 'isSignedIn=', isSignedIn);
   const syncUser = useMutation(api.users.syncUser);
   const currentUser = useQuery(
     api.users.currentUser,
