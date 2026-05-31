@@ -365,7 +365,7 @@ export function InterviewFormModal({
           </div>
 
           {/* Interview Date & Round */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5" />
@@ -378,7 +378,7 @@ export function InterviewFormModal({
                   disabled={!canEdit}
                   {...register("interviewDate")}
                   className={cn(
-                    "flex-1 px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                    "flex-1 px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
                     errors.interviewDate && "border-destructive focus:ring-destructive/20"
                   )}
                 />
@@ -386,7 +386,7 @@ export function InterviewFormModal({
                   type="button"
                   onClick={() => setShowCalendar(true)}
                   disabled={!canEdit}
-                  className="p-2.5 rounded-xl border border-border bg-background text-muted-foreground hover:text-primary hover:bg-secondary/40 transition-colors disabled:opacity-50"
+                  className="p-2.5 rounded-xl border border-border bg-background text-muted-foreground hover:text-primary hover:bg-secondary/40 transition-colors disabled:opacity-50 shrink-0"
                   title="Open calendar picker"
                 >
                   <Calendar className="h-4 w-4" />
@@ -423,7 +423,7 @@ export function InterviewFormModal({
           </div>
 
           {/* Start Time & End Time */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
@@ -529,7 +529,7 @@ export function InterviewFormModal({
           </span>
 
           {/* Company Name & Role */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                 <Briefcase className="h-3.5 w-3.5" />
