@@ -22,6 +22,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePickerModal } from "@/components/date-picker-modal";
 
 // Form Validation Schema using Zod
 const interviewFormSchema = z.object({
@@ -60,6 +61,7 @@ export function InterviewFormModal({
   defaultDate,
 }: InterviewFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Mutations & Queries
   const { user } = useUser();
@@ -95,6 +97,8 @@ export function InterviewFormModal({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<InterviewFormValues>({
     resolver: zodResolver(interviewFormSchema),
@@ -367,16 +371,27 @@ export function InterviewFormModal({
                 <Calendar className="h-3.5 w-3.5" />
                 Date <span className="text-destructive">*</span>
               </label>
-              <input
-                type="date"
-                min={new Date().toISOString().split("T")[0]}
-                disabled={!canEdit}
-                {...register("interviewDate")}
-                className={cn(
-                  "w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
-                  errors.interviewDate && "border-destructive focus:ring-destructive/20"
-                )}
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  min={new Date().toISOString().split("T")[0]}
+                  disabled={!canEdit}
+                  {...register("interviewDate")}
+                  className={cn(
+                    "flex-1 px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                    errors.interviewDate && "border-destructive focus:ring-destructive/20"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCalendar(true)}
+                  disabled={!canEdit}
+                  className="p-2.5 rounded-xl border border-border bg-background text-muted-foreground hover:text-primary hover:bg-secondary/40 transition-colors disabled:opacity-50"
+                  title="Open calendar picker"
+                >
+                  <Calendar className="h-4 w-4" />
+                </button>
+              </div>
               {errors.interviewDate && (
                 <p className="text-xs text-destructive mt-0.5">{errors.interviewDate.message}</p>
               )}
@@ -669,6 +684,18 @@ export function InterviewFormModal({
             </>
           )}
         </div>
+
+        {/* Calendar Picker Modal */}
+        <DatePickerModal
+          isOpen={showCalendar}
+          onClose={() => setShowCalendar(false)}
+          onSelectDate={(isoDate) => {
+            setValue("interviewDate", isoDate);
+            setShowCalendar(false);
+          }}
+          selectedDate={watch("interviewDate")}
+          title="Select Interview Date"
+        />
       </div>
     </div>
   );
