@@ -62,6 +62,7 @@ export function InterviewFormModal({
 }: InterviewFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [mobileInterviewDateInput, setMobileInterviewDateInput] = useState("");
 
   // Mutations & Queries
   const { user } = useUser();
@@ -120,6 +121,25 @@ export function InterviewFormModal({
       status: "scheduled",
     },
   });
+
+  const watchedInterviewDate = watch("interviewDate");
+
+  const formatToDisplay = (iso?: string) => {
+    if (!iso) return "";
+    const [y, m, d] = iso.split("-");
+    return `${d}-${m}-${y}`;
+  };
+
+  const parseDisplayToISO = (display: string) => {
+    const m = display.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (!m) return undefined;
+    const [, dd, mm, yyyy] = m;
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  useEffect(() => {
+    setMobileInterviewDateInput(formatToDisplay(watchedInterviewDate));
+  }, [watchedInterviewDate]);
 
   // Populate form if in edit mode
   useEffect(() => {
@@ -371,26 +391,63 @@ export function InterviewFormModal({
                 <Calendar className="h-3.5 w-3.5" />
                 Date <span className="text-destructive">*</span>
               </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  min={new Date().toISOString().split("T")[0]}
-                  disabled={!canEdit}
-                  {...register("interviewDate")}
-                  className={cn(
-                    "flex-1 px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
-                    errors.interviewDate && "border-destructive focus:ring-destructive/20"
-                  )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCalendar(true)}
-                  disabled={!canEdit}
-                  className="p-2.5 rounded-xl border border-border bg-background text-muted-foreground hover:text-primary hover:bg-secondary/40 transition-colors disabled:opacity-50 shrink-0"
-                  title="Open calendar picker"
-                >
-                  <Calendar className="h-4 w-4" />
-                </button>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3.5 py-2.5 w-full md:hidden">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="dd-mm-yyyy"
+                    aria-label="Interview date (dd-mm-yyyy)"
+                    value={mobileInterviewDateInput}
+                    disabled={!canEdit}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setMobileInterviewDateInput(v);
+                      const iso = parseDisplayToISO(v);
+                      if (iso) {
+                        setValue("interviewDate", iso);
+                      }
+                      if (!v) {
+                        setValue("interviewDate", "");
+                      }
+                    }}
+                    className={cn(
+                      "flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-xs outline-none",
+                      errors.interviewDate && "text-destructive"
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCalendar(true)}
+                    disabled={!canEdit}
+                    className="p-2.5 rounded-xl border border-border bg-background text-muted-foreground hover:text-primary hover:bg-secondary/40 transition-colors disabled:opacity-50"
+                    title="Open calendar picker"
+                  >
+                    <Calendar className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="hidden md:flex items-center gap-2">
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    disabled={!canEdit}
+                    {...register("interviewDate")}
+                    className={cn(
+                      "flex-1 px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+                      errors.interviewDate && "border-destructive focus:ring-destructive/20"
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCalendar(true)}
+                    disabled={!canEdit}
+                    className="p-2.5 rounded-xl border border-border bg-background text-muted-foreground hover:text-primary hover:bg-secondary/40 transition-colors disabled:opacity-50 shrink-0"
+                    title="Open calendar picker"
+                  >
+                    <Calendar className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               {errors.interviewDate && (
                 <p className="text-xs text-destructive mt-0.5">{errors.interviewDate.message}</p>
