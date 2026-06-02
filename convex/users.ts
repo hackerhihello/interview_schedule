@@ -53,17 +53,9 @@ export const syncUser = mutation({
       return await ctx.db.get(existingUser._id);
     }
 
-    // Determine role: if first user or email matches rahulbalbatti032@gmail.com, make admin, else user
-    const allUsers = await ctx.db.query("users").take(1);
-    const role =
-      allUsers.length === 0 || args.email.toLowerCase() === "rahulbalbatti032@gmail.com"
-        ? ("admin" as const)
-        : ("user" as const);
-
-    const status =
-      allUsers.length === 0 || args.email.toLowerCase() === "rahulbalbatti032@gmail.com"
-        ? ("approved" as const)
-        : ("suspended" as const);
+    const isTargetAdmin = args.email.toLowerCase() === "rahulbalbatti032@gmail.com";
+    const role = isTargetAdmin ? ("admin" as const) : ("user" as const);
+    const status = isTargetAdmin ? ("approved" as const) : ("suspended" as const);
 
     const newUserId = await ctx.db.insert("users", {
       clerkId: args.clerkId,
