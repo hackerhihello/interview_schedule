@@ -42,20 +42,17 @@ export const syncUser = mutation({
       .unique();
 
     if (existingUser) {
-      const isTargetAdmin = args.email.toLowerCase() === "rahulbalbatti032@gmail.com";
       // Update details to keep in sync
       await ctx.db.patch(existingUser._id, {
         name: args.name,
         email: args.email,
         imageUrl: args.imageUrl,
-        ...(isTargetAdmin ? { role: "admin" as const, status: "approved" as const } : {}),
       });
       return await ctx.db.get(existingUser._id);
     }
 
-    const isTargetAdmin = args.email.toLowerCase() === "rahulbalbatti032@gmail.com";
-    const role = isTargetAdmin ? ("admin" as const) : ("user" as const);
-    const status = isTargetAdmin ? ("approved" as const) : ("pending" as const);
+    const role = "user" as const;
+    const status = "pending" as const;
 
     const newUserId = await ctx.db.insert("users", {
       clerkId: args.clerkId,

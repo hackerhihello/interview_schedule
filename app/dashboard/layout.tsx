@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { Navbar } from "@/components/navbar";
+import { InterviewNotifier } from "@/components/interview-notifier";
 import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -154,6 +155,9 @@ export default function DashboardLayout({
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Navbar */}
         <Navbar />
+
+        {/* Global Notifier */}
+        <InterviewNotifier />
 
         {/* Dynamic page render layout container */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 bg-gradient-to-br from-background via-background to-secondary/15">
