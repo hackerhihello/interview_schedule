@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -38,6 +39,23 @@ export function Navbar() {
   // Filter pending users inside dropdown
   const filteredPending = pendingUsers;
 
+  const prevRequestedCount = useRef(0);
+  const usersWhoRequested = pendingUsers?.filter(u => u.hasRequestedAccess) || [];
+  const currentRequestedCount = usersWhoRequested.length;
+
+  useEffect(() => {
+    if (isAdmin && currentRequestedCount > prevRequestedCount.current) {
+      toast.info("New Access Request", {
+        description: "A user has requested access to the platform.",
+        action: {
+          label: "Review",
+          onClick: () => setIsNotifOpen(true)
+        }
+      });
+    }
+    prevRequestedCount.current = currentRequestedCount;
+  }, [currentRequestedCount, isAdmin]);
+
   const handleCopyEmail = async (e: React.MouseEvent, email: string, userId: string) => {
     e.stopPropagation();
     try {
@@ -49,7 +67,7 @@ export function Navbar() {
     }
   };
 
-  const handleApprove = async (e: React.MouseEvent, userId: any) => {
+  const handleApprove = async (e: React.MouseEvent, userId: string | any) => {
     e.stopPropagation();
     setApprovingUserId(userId);
     try {

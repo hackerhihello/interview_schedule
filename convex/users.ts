@@ -63,7 +63,7 @@ export const syncUser = mutation({
     const status =
       allUsers.length === 0 || args.email.toLowerCase() === "rahulbalbatti032@gmail.com"
         ? ("approved" as const)
-        : ("pending" as const);
+        : ("suspended" as const);
 
     const newUserId = await ctx.db.insert("users", {
       clerkId: args.clerkId,
@@ -118,7 +118,7 @@ export const getPendingUsers = query({
     }
     return await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("status"), "pending"))
+      .filter((q) => q.neq(q.field("status"), "approved"))
       .collect();
   },
 });
@@ -195,7 +195,21 @@ export const updateStatus = mutation({
     return { success: true };
   },
 });
+// Request access (sets hasRequestedAccess to true)
+export const requestAccess = mutation({
+  args: {
+    clerkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx, args.clerkId);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
+    await ctx.db.patch(user._id, {
+      hasRequestedAccess: true,
+    });
 
-
-
+    return { success: true };
+  },
+});

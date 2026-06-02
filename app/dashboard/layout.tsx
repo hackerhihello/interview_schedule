@@ -19,6 +19,7 @@ export default function DashboardLayout({
   // Debug: surface Clerk load/signed-in state in console
   console.log('DEBUG: isClerkLoaded=', isClerkLoaded, 'isSignedIn=', isSignedIn);
   const syncUser = useMutation(api.users.syncUser);
+  const requestAccess = useMutation(api.users.requestAccess);
   const currentUser = useQuery(
     api.users.currentUser,
     user ? { clerkId: user.id } : "skip"
@@ -79,7 +80,7 @@ export default function DashboardLayout({
     );
   }
 
-  const isApproved = currentUser.status === "approved" || !currentUser.status;
+  const isApproved = currentUser.status === "approved";
   const isSuspended = currentUser.status === "suspended";
 
   // Gatekeeper for Pending / Suspended accounts
@@ -115,12 +116,30 @@ export default function DashboardLayout({
               <span className="text-[10px] text-muted-foreground block break-all font-mono mt-0.5">{currentUser.email}</span>
             </div>
 
+            {!currentUser.hasRequestedAccess ? (
+              <button
+                onClick={async () => {
+                  try {
+                    await requestAccess({ clerkId: user.id });
+                  } catch (e) {
+                    console.error("Failed to request access", e);
+                  }
+                }}
+                className="w-full py-3 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold text-xs transition-all active:scale-98"
+              >
+                Request Access from Admin
+              </button>
+            ) : (
+              <div className="w-full py-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-center font-semibold text-xs">
+                Access Request Sent!
+              </div>
+            )}
+
             <SignOutButton redirectUrl="/sign-in">
               <button className="w-full py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs transition-all active:scale-98">
                 Sign Out
               </button>
-            </SignOutButton>
-          </div>
+            </SignOutButton>          </div>
         </div>
       </div>
     );
