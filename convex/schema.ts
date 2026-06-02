@@ -8,10 +8,12 @@ export default defineSchema({
     email: v.string(),
     role: v.union(v.literal("admin"), v.literal("user")),
     status: v.optional(v.union(v.literal("approved"), v.literal("pending"), v.literal("suspended"))),
+    hasRequestedAccess: v.optional(v.boolean()),
     imageUrl: v.optional(v.string()),
     createdAt: v.number(),
   })
-    .index("by_clerkId", ["clerkId"]),
+    .index("by_clerkId", ["clerkId"])
+    .index("by_hasRequestedAccess", ["hasRequestedAccess"]),
 
   interviews: defineTable({
     candidateName: v.string(),
