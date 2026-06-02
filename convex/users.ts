@@ -55,7 +55,7 @@ export const syncUser = mutation({
 
     const isTargetAdmin = args.email.toLowerCase() === "rahulbalbatti032@gmail.com";
     const role = isTargetAdmin ? ("admin" as const) : ("user" as const);
-    const status = isTargetAdmin ? ("approved" as const) : ("suspended" as const);
+    const status = isTargetAdmin ? ("approved" as const) : ("pending" as const);
 
     const newUserId = await ctx.db.insert("users", {
       clerkId: args.clerkId,
