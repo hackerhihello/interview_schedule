@@ -17,7 +17,7 @@ export const exportToExcel = async (
     fgColor: { argb: 'FF2563EB' }
   };
   
-  const headerFont: ExcelJS.Font = {
+  const headerFont: Partial<ExcelJS.Font> = {
     color: { argb: 'FFFFFFFF' },
     bold: true,
     size: 12,
