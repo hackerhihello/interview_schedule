@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Menu, X, Bell, Copy, Check, ExternalLink, UserCheck, Loader2 } from "lucide-react";
+import { Menu, X, Bell, Copy, Check, ExternalLink, UserCheck, Loader2, Search, Command } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { SidebarNav } from "./sidebar-nav";
 import { cn } from "@/lib/utils";
@@ -89,58 +89,78 @@ export function Navbar() {
     router.push(`/dashboard/users?search=${encodeURIComponent(email)}`);
   };
 
-
   // Format Page Name based on Pathname
   const getPageTitle = () => {
-    if (pathname === "/dashboard") return "Overview Dashboard";
-    if (pathname === "/dashboard/interviews") return "Interviews Schedule";
-    if (pathname === "/dashboard/calendar") return "Interactive Calendar";
-    if (pathname === "/dashboard/users") return "User Access Management";
-    if (pathname === "/dashboard/activity") return "Activity Audit Trail";
-    return "Ignited Minds Learning";
+    if (pathname === "/dashboard") return "Overview";
+    if (pathname === "/dashboard/interviews") return "Interviews";
+    if (pathname === "/dashboard/calendar") return "Calendar";
+    if (pathname === "/dashboard/users") return "User Management";
+    if (pathname === "/dashboard/activity") return "Audit Logs";
+    return "Ignited Minds";
   };
 
   return (
     <>
-      <header className="sticky top-0 h-20 px-6 md:px-8 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-md z-10 transition-all duration-300">
+      <header className="sticky top-0 h-[72px] px-6 md:px-8 flex items-center justify-between border-b border-border/40 glass z-10 transition-all duration-300">
         {/* Left Side: Mobile Menu Button & Breadcrumb */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground border border-border transition-all active:scale-95"
+            className="md:hidden p-2 rounded-xl bg-background/50 hover:bg-secondary border border-border/50 transition-all active:scale-95"
             aria-label="Open navigation menu"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5 text-muted-foreground" />
           </button>
           
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold tracking-tight text-foreground transition-all duration-300">
+            <h1 className="text-xl font-bold tracking-tight text-foreground transition-all duration-300 capitalize">
               {getPageTitle()}
             </h1>
           </div>
           
           {/* Small visual accent for brand identification on extra small screens */}
-          <div className="sm:hidden flex items-center gap-1.5 font-bold text-sm text-foreground">
-            <img src="/logo.png" className="h-5 w-5 object-contain" alt="Ignited Minds Logo" />
-            <span className="bg-gradient-to-tr from-primary to-indigo-500 text-transparent bg-clip-text">Ignited Minds</span>
+          <div className="sm:hidden flex items-center gap-2 font-bold text-sm text-foreground">
+            <div className="h-6 w-6 rounded flex items-center justify-center bg-gradient-indigo text-white shadow-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M12 2L2 7l10 5 10-5-10-5Z"/></svg>
+            </div>
+            <span className="bg-gradient-to-tr from-primary to-secondary text-transparent bg-clip-text">Ignited Minds</span>
+          </div>
+        </div>
+
+        {/* Center: Command Palette Placeholder (Desktop) */}
+        <div className="hidden lg:flex flex-1 max-w-md mx-8">
+          <div className="relative w-full group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <input
+              type="text"
+              placeholder="Search anything..."
+              className="w-full h-10 pl-10 pr-12 rounded-xl bg-background/50 border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all outline-none text-sm placeholder:text-muted-foreground/60 shadow-sm"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <kbd className="hidden xl:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-muted/50 text-[10px] font-medium text-muted-foreground">
+                <Command className="h-3 w-3" /> K
+              </kbd>
+            </div>
           </div>
         </div>
 
         {/* Right Side: Notifications, Theme, Profile */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          
+          <button className="lg:hidden p-2.5 rounded-full hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-all">
+            <Search className="h-4.5 w-4.5" />
+          </button>
 
           {/* Real-time Notifications Popover */}
           <div className="relative">
             <button
               onClick={() => setIsNotifOpen(!isNotifOpen)}
-              className="p-2.5 rounded-xl bg-secondary/80 hover:bg-secondary border border-border text-foreground transition-all relative hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+              className="p-2.5 rounded-full hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-all relative active:scale-95 cursor-pointer flex items-center justify-center"
               aria-label="View notifications"
             >
               <Bell className="h-4.5 w-4.5" />
               {pendingCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-[9px] font-bold text-white flex items-center justify-center ring-2 ring-background animate-pulse">
-                  {pendingCount}
-                </span>
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background animate-pulse" />
               )}
             </button>
 
@@ -153,13 +173,13 @@ export function Navbar() {
                 />
                 
                 {/* Dropdown Card */}
-                <div className="absolute right-0 mt-3 w-80 sm:w-[380px] bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in origin-top-right transition-all">
+                <div className="fixed sm:absolute top-[72px] sm:top-auto left-4 right-4 sm:left-auto sm:right-0 mt-2 sm:mt-3 sm:w-[380px] bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] z-50 overflow-hidden animate-slide-up sm:origin-top-right transition-all">
                   {/* Header */}
-                  <div className="p-4 border-b border-border bg-secondary/15 flex items-center justify-between">
+                  <div className="p-4 border-b border-border/40 bg-secondary/10 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-sm text-foreground">Access Requests</h3>
                       {pendingCount > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-destructive/10 text-destructive text-[10px] font-bold">
                           {pendingCount} Pending
                         </span>
                       )}
@@ -169,123 +189,99 @@ export function Navbar() {
                         onClick={() => handleUserRedirect("")}
                         className="text-[10px] font-bold uppercase tracking-wider text-primary hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0"
                       >
-                        <span>Manage All</span>
-                        <ExternalLink className="h-3 w-3" />
+                        <span>Manage</span>
                       </button>
                     )}
                   </div>
 
 
                   {/* List Content */}
-                  <div className="max-h-[320px] overflow-y-auto divide-y divide-border/60">
+                  <div className="max-h-[320px] overflow-y-auto">
                     {!isAdmin ? (
-                      <div className="p-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-2">
-                        <Bell className="h-8 w-8 text-muted-foreground/45" />
-                        <span>No pending user alerts for non-admin accounts.</span>
+                      <div className="p-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-secondary/50 flex items-center justify-center">
+                          <Bell className="h-5 w-5 text-muted-foreground/60" />
+                        </div>
+                        <span>No pending alerts.</span>
                       </div>
                     ) : !pendingUsers ? (
                       <div className="p-8 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <span>Retrieving registrations...</span>
+                        <span>Loading...</span>
                       </div>
                     ) : filteredPending && filteredPending.length > 0 ? (
-                      filteredPending.map((pUser) => (
-                        <div
-                          key={pUser._id}
-                          onClick={() => handleUserRedirect(pUser.email)}
-                          className="p-3.5 hover:bg-secondary/20 flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer group"
-                        >
-                          {/* Left: Avatar & Name */}
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            {pUser.imageUrl ? (
-                              <img
-                                src={pUser.imageUrl}
-                                alt={pUser.name}
-                                className="h-8 w-8 rounded-lg object-cover ring-2 ring-primary/5 shrink-0"
-                              />
-                            ) : (
-                              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-primary text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                                {pUser.name.substring(0, 2).toUpperCase()}
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                                {pUser.name}
-                              </h4>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="text-[10px] text-muted-foreground truncate font-mono">
-                                  {pUser.email}
-                                </span>
-                                <button
-                                  onClick={(e) => handleCopyEmail(e, pUser.email, pUser._id)}
-                                  className="p-1 rounded hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-all cursor-pointer bg-transparent border-0"
-                                  title="Copy Email"
-                                >
-                                  {copiedUserId === pUser._id ? (
-                                    <Check className="h-3 w-3 text-emerald-500" />
-                                  ) : (
-                                    <Copy className="h-3 w-3" />
-                                  )}
-                                </button>
+                      <div className="p-2 space-y-1">
+                        {filteredPending.map((pUser) => (
+                          <div
+                            key={pUser._id}
+                            onClick={() => handleUserRedirect(pUser.email)}
+                            className="p-3 rounded-xl hover:bg-secondary/40 flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer group"
+                          >
+                            {/* Left: Avatar & Name */}
+                            <div className="flex items-center gap-3 min-w-0">
+                              {pUser.imageUrl ? (
+                                <img
+                                  src={pUser.imageUrl}
+                                  alt={pUser.name}
+                                  className="h-9 w-9 rounded-full object-cover ring-1 ring-border shrink-0"
+                                />
+                              ) : (
+                                <div className="h-9 w-9 rounded-full bg-gradient-indigo text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                  {pUser.name.substring(0, 2).toUpperCase()}
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <h4 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                                  {pUser.name}
+                                </h4>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[11px] text-muted-foreground truncate font-mono">
+                                    {pUser.email}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Right: Approve Button */}
-                          <button
-                            onClick={(e) => handleApprove(e, pUser._id)}
-                            disabled={approvingUserId === pUser._id}
-                            className="h-8 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-[10px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer border-0"
-                          >
-                            {approvingUserId === pUser._id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                              <>
-                                <UserCheck className="h-3.5 w-3.5" />
-                                <span>Approve</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      ))
+                            {/* Right: Approve Button */}
+                            <button
+                              onClick={(e) => handleApprove(e, pUser._id)}
+                              disabled={approvingUserId === pUser._id}
+                              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs shadow-sm flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer border-0"
+                            >
+                              {approvingUserId === pUser._id ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <>Approve</>
+                              )}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     ) : (
-                      <div className="p-8 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
-                        {/* Company logo or visual decoration */}
-                        <img src="/logo.png" className="h-8 w-8 object-contain opacity-55 animate-pulse" alt="Logo" />
+                      <div className="p-8 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                          <Check className="h-5 w-5 text-emerald-500" />
+                        </div>
                         <span className="font-semibold text-foreground">All Caught Up!</span>
-                        <span className="text-[10px] text-muted-foreground/80 leading-relaxed px-4">
-                          All registered user accounts are currently approved and active.
-                        </span>
                       </div>
                     )}
                   </div>
-
-                  {/* Footer */}
-                  {isAdmin && pendingCount > 0 && (
-                    <div className="p-3 border-t border-border bg-secondary/10 text-center">
-                      <button
-                        onClick={() => handleUserRedirect("")}
-                        className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all flex items-center justify-center gap-1.5 w-full py-1 cursor-pointer bg-transparent border-0"
-                      >
-                        <span>Audit User Access Directory</span>
-                        <ExternalLink className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
                 </div>
               </>
             )}
           </div>
 
           {/* Light/Dark Toggle */}
-          <ThemeToggle />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
 
           {/* Clerk Profile Avatar */}
-          <div className="flex items-center gap-2 pl-2 border-l border-border h-8">
+          <div className="flex items-center gap-2 pl-3 border-l border-border/40">
             <UserButton
               appearance={{
                 elements: {
-                  avatarBox: "h-9 w-9 rounded-xl border border-border shadow-sm ring-primary/10",
+                  avatarBox: "h-9 w-9 rounded-full border border-border shadow-sm ring-2 ring-transparent hover:ring-primary/20 transition-all",
                 },
               }}
             />
@@ -303,7 +299,7 @@ export function Navbar() {
       >
         <div
           className={cn(
-            "fixed inset-y-0 left-0 w-72 bg-background border-r border-border shadow-2xl transition-transform duration-300 ease-out transform",
+            "fixed inset-y-0 left-0 w-72 bg-card border-r border-border shadow-2xl transition-transform duration-300 ease-out transform",
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           )}
           onClick={(e) => e.stopPropagation()}
@@ -312,9 +308,9 @@ export function Navbar() {
           <div className="absolute top-5 right-5 z-50">
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground border border-border transition-all active:scale-95"
+              className="p-2 rounded-full hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-all"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
           

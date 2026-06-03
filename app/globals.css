@@ -7,10 +7,10 @@
   --card-foreground: hsl(224 71.4% 4.1%);
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(224 71.4% 4.1%);
-  --primary: hsl(220 90% 56%);
+  --primary: hsl(221 83% 53%); /* #2563EB */
   --primary-foreground: hsl(210 20% 98%);
-  --secondary: hsl(220 14% 90%);
-  --secondary-foreground: hsl(220 15% 15%);
+  --secondary: hsl(243 75% 59%); /* #4F46E5 */
+  --secondary-foreground: hsl(210 20% 98%);
   --muted: hsl(220 14% 94%);
   --muted-foreground: hsl(220 10% 40%);
   --accent: hsl(220 14% 90%);
@@ -19,8 +19,8 @@
   --destructive-foreground: hsl(210 20% 98%);
   --border: hsl(220 13% 88%);
   --input: hsl(220 13% 88%);
-  --ring: hsl(220 90% 56%);
-  --radius: 0.75rem;
+  --ring: hsl(221 83% 53%);
+  --radius: 1.25rem; /* 20px rounded corners */
 }
 
 .dark {
@@ -30,9 +30,9 @@
   --card-foreground: hsl(210 20% 98%);
   --popover: hsl(224 25% 8%);
   --popover-foreground: hsl(210 20% 98%);
-  --primary: hsl(217 91% 60%);
-  --primary-foreground: hsl(222.2 47.4% 11.2%);
-  --secondary: hsl(224 25% 14%);
+  --primary: hsl(221 83% 53%);
+  --primary-foreground: hsl(210 20% 98%);
+  --secondary: hsl(243 75% 59%);
   --secondary-foreground: hsl(210 20% 98%);
   --muted: hsl(224 25% 12%);
   --muted-foreground: hsl(217.9 10.6% 64.9%);
@@ -42,7 +42,7 @@
   --destructive-foreground: hsl(210 20% 98%);
   --border: hsl(224 25% 15%);
   --input: hsl(224 25% 15%);
-  --ring: hsl(217 91% 60%);
+  --ring: hsl(221 83% 53%);
 }
 
 @theme {
@@ -103,16 +103,30 @@ body {
 /* Glassmorphism Preset class */
 .glass {
   background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 }
 
 .dark .glass {
   background: rgba(15, 20, 32, 0.45);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Indigo Gradient Utility */
+.bg-gradient-indigo {
+  background: linear-gradient(135deg, hsl(221 83% 53%), hsl(243 75% 59%));
+}
+
+.text-gradient-indigo {
+  background: linear-gradient(135deg, hsl(221 83% 53%), hsl(243 75% 59%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Custom Scrollbars */

@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Award,
   Video,
+  Sparkles
 } from "lucide-react";
 import {
   BarChart,
@@ -31,7 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 
 // Custom palette colors for charts
-const COLORS = ["#3b82f6", "#6366f1", "#8b5cf6", "#ec4899", "#f43f5e", "#10b981"];
+const COLORS = ["#2563eb", "#4f46e5", "#7c3aed", "#e11d48", "#10b981", "#f59e0b"];
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
@@ -53,7 +54,6 @@ export default function DashboardPage() {
 
   // Prevent Recharts hydration mismatch
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -65,41 +65,45 @@ export default function DashboardPage() {
   const { stats, charts } = statsData;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
       {/* Top Banner Welcome */}
-      <div className="relative overflow-hidden p-6 md:p-8 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="relative overflow-hidden p-8 rounded-[24px] border border-border/50 glass flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm">
         {/* Glow effect backgrounds */}
-        <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-indigo-500/10 blur-2xl" />
+        <div className="absolute top-[-20%] right-[-10%] h-64 w-64 rounded-full bg-primary/10 blur-[80px]" />
+        <div className="absolute bottom-[-20%] left-[-10%] h-48 w-48 rounded-full bg-secondary/10 blur-[60px]" />
 
-        <div className="space-y-1 z-10">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-primary px-2 py-0.5 bg-primary/10 rounded-full">
-              Authentication Active
+        <div className="space-y-2.5 z-10">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-primary px-2.5 py-1 bg-primary/10 rounded-md">
+              <Sparkles className="h-3 w-3" />
+              Authenticated
             </span>
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              • Role: <span className="font-semibold text-foreground capitalize">{role}</span>
+            <span className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+              Role: <span className="text-foreground capitalize">{role}</span>
             </span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Welcome back, <span className="bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-transparent">{currentUser.name}</span>!
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground mt-2">
+            Welcome back, <span className="text-gradient-indigo">{currentUser.name}</span>
           </h2>
-          <p className="text-sm text-muted-foreground max-w-xl">
+          <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
             {isAdmin
-              ? "Access scheduling statistics, candidate lists, assign interviewers, and review audit records."
+              ? "Access scheduling statistics, monitor candidate pipelines, and review organizational activity in real-time."
               : "Review your upcoming assigned candidate rounds, complete reports, and edit interview feedback logs."}
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 z-10">
-          <div className="px-4 py-2.5 rounded-xl border border-border bg-secondary/20 backdrop-blur-sm text-center">
-            <span className="text-xs text-muted-foreground block">Session Role</span>
-            <span className="text-sm font-bold text-foreground uppercase tracking-wide">{role}</span>
+        <div className="flex items-center gap-4 shrink-0 z-10">
+          <div className="px-5 py-3 rounded-2xl border border-border/40 bg-background/50 backdrop-blur-md flex flex-col items-start shadow-sm">
+            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Session</span>
+            <span className="text-sm font-bold text-foreground capitalize flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              {role}
+            </span>
           </div>
-          <div className="px-4 py-2.5 rounded-xl border border-border bg-secondary/20 backdrop-blur-sm text-center">
-            <span className="text-xs text-muted-foreground block">Next Candidate</span>
-            <span className="text-sm font-bold text-primary flex items-center gap-1.5 justify-center">
-              <img src="/logo.png" className="h-3.5 w-3.5 object-contain" alt="Ignited Minds Logo" />
+          <div className="px-5 py-3 rounded-2xl border border-primary/20 bg-primary/5 backdrop-blur-md flex flex-col items-start shadow-sm">
+            <span className="text-[10px] text-primary/70 uppercase font-bold tracking-widest mb-1">AI Insights</span>
+            <span className="text-sm font-bold text-primary flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
               Active
             </span>
           </div>
@@ -107,131 +111,144 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="Total Scheduled"
           value={stats.total}
-          description={isAdmin ? "Total entries system-wide" : "Total slots assigned to you"}
+          description={isAdmin ? "System-wide volume" : "Assigned slots"}
           icon={CalendarDays}
-          color="primary"
+          color="indigo"
         />
         <StatsCard
           title="Upcoming Rounds"
           value={stats.upcoming}
-          description="Awaiting session execution"
+          description="Awaiting execution"
           icon={Clock}
-          color="indigo"
+          color="primary"
         />
         <StatsCard
-          title="Completed Assessments"
+          title="Completed"
           value={stats.completed}
-          description="Successfully processed rounds"
+          description="Successfully processed"
           icon={CheckCircle}
           color="emerald"
         />
         <StatsCard
           title="Cancelled / Failed"
           value={stats.cancelled + stats.failed}
-          description="Incomplete or missed slots"
+          description="Incomplete slots"
           icon={XCircle}
           color="rose"
         />
       </div>
 
       {/* Main Charts & Activity Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column: Visual Charts (Span 2) */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="p-6 rounded-2xl border border-border bg-card/30 backdrop-blur-sm space-y-6">
+        <div className="xl:col-span-2 space-y-8">
+          
+          <div className="p-7 rounded-[24px] border border-border/50 glass space-y-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-md font-bold text-foreground">Weekly Scheduling Loads</h3>
-                <p className="text-xs text-muted-foreground">Volume of interviews scheduled per calendar date</p>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Interview Pipeline</h3>
+                <p className="text-sm text-muted-foreground mt-1">Volume of interviews scheduled over time</p>
               </div>
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
             </div>
 
-            <div className="h-80 w-full">
+            <div className="h-80 w-full mt-4">
               {charts.timelineData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={charts.timelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="date" stroke="#888888" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#888888" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <XAxis dataKey="date" stroke="#888888" fontSize={11} tickLine={false} axisLine={false} dy={10} />
+                    <YAxis stroke="#888888" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} dx={-10} />
                     <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                       contentStyle={{
-                        background: "rgba(30, 41, 59, 0.9)",
+                        background: "rgba(15, 23, 42, 0.95)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: "12px",
                         color: "#fff",
-                        fontSize: "12px",
+                        fontSize: "13px",
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                       }}
                     />
                     <Bar dataKey="count" fill="url(#colorBar)" radius={[6, 6, 0, 0]}>
                       <defs>
                         <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                          <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.9} />
+                          <stop offset="95%" stopColor="#2563eb" stopOpacity={0.3} />
                         </linearGradient>
                       </defs>
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <EmptyChartState text="No scheduler date load information compiled yet" />
+                <EmptyChartState text="No pipeline data available yet" />
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Rounds Distribution Pie Chart */}
-            <div className="p-6 rounded-2xl border border-border bg-card/30 backdrop-blur-sm space-y-6 flex flex-col justify-between">
+            <div className="p-7 rounded-[24px] border border-border/50 glass space-y-6 flex flex-col justify-between shadow-sm">
               <div>
-                <h3 className="text-md font-bold text-foreground">Round Distribution</h3>
-                <p className="text-xs text-muted-foreground">Breakdown by interview round category</p>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Stage Distribution</h3>
+                <p className="text-sm text-muted-foreground mt-1">Breakdown by assessment category</p>
               </div>
               
-              <div className="h-60 w-full flex items-center justify-center">
+              <div className="h-64 w-full flex items-center justify-center relative">
                 {charts.roundData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={charts.roundData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={55}
-                        outerRadius={75}
-                        paddingAngle={3}
-                        dataKey="value"
+                         data={charts.roundData}
+                         cx="50%"
+                         cy="50%"
+                         innerRadius={65}
+                         outerRadius={90}
+                         paddingAngle={4}
+                         dataKey="value"
+                         stroke="none"
                       >
-                        {charts.roundData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
+                         {charts.roundData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                         ))}
                       </Pie>
                       <Tooltip
                         contentStyle={{
-                          background: "rgba(30, 41, 59, 0.9)",
+                          background: "rgba(15, 23, 42, 0.95)",
                           border: "1px solid rgba(255, 255, 255, 0.1)",
-                          borderRadius: "8px",
+                          borderRadius: "12px",
                           color: "#fff",
-                          fontSize: "11px",
+                          fontSize: "13px",
                         }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <EmptyChartState text="No interview round category breakdowns" />
+                  <EmptyChartState text="No distribution data" />
+                )}
+                {/* Center Label */}
+                {charts.roundData.length > 0 && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                     <span className="text-3xl font-extrabold text-foreground">{stats.total}</span>
+                     <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Total</span>
+                  </div>
                 )}
               </div>
 
               {charts.roundData.length > 0 && (
-                <div className="flex flex-wrap gap-2.5 justify-center mt-2">
+                <div className="flex flex-wrap gap-3 justify-center mt-2">
                   {charts.roundData.map((entry, index) => (
-                    <div key={entry.name} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div key={entry.name} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <div
-                        className="h-2 w-2 rounded-full"
+                        className="h-2.5 w-2.5 rounded-full"
                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       />
-                      <span>{entry.name} ({entry.value})</span>
+                      <span>{entry.name} <span className="text-foreground ml-1 font-semibold">{entry.value}</span></span>
                     </div>
                   ))}
                 </div>
@@ -239,24 +256,24 @@ export default function DashboardPage() {
             </div>
 
             {/* Performance Card */}
-            <div className="p-6 rounded-2xl border border-border bg-card/30 backdrop-blur-sm space-y-5 flex flex-col justify-between">
+            <div className="p-7 rounded-[24px] border border-border/50 glass space-y-6 flex flex-col justify-between shadow-sm">
               <div>
-                <h3 className="text-md font-bold text-foreground">Candidate Outcome Ratios</h3>
-                <p className="text-xs text-muted-foreground">Breakdown of grading assessments</p>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Success Metrics</h3>
+                <p className="text-sm text-muted-foreground mt-1">Candidate progression rates</p>
               </div>
 
-              <div className="space-y-4 py-2">
+              <div className="space-y-6 py-2">
                 <OutcomeProgress label="Passed / Promoted" count={stats.passed} total={stats.completed} color="bg-emerald-500" />
                 <OutcomeProgress label="Failed / Rejected" count={stats.failed} total={stats.completed} color="bg-rose-500" />
                 <OutcomeProgress label="Scheduled" count={stats.upcoming} total={stats.total} color="bg-indigo-500" />
               </div>
 
-              <div className="p-3.5 rounded-xl bg-secondary/30 border border-border text-xs text-muted-foreground flex items-start gap-2.5">
-                <Award className="h-4.5 w-4.5 text-indigo-500 shrink-0 mt-0.5" />
-                <span>
+              <div className="p-4 rounded-xl bg-background/50 border border-border/40 text-sm text-muted-foreground flex items-start gap-3 mt-4 shadow-inner">
+                <Award className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
                   {isAdmin
-                    ? "As administrator, manage active pipelines, add roles, and oversee organizational interviews."
-                    : "Update details on upcoming rounds. Review candidate specs prior to sessions."}
+                    ? "Manage active pipelines, update roles, and review organizational metrics."
+                    : "Update session statuses and review candidate records."}
                 </span>
               </div>
             </div>
@@ -264,64 +281,67 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column: Activity Audit Timeline */}
-        <div className="p-6 rounded-2xl border border-border bg-card/30 backdrop-blur-sm flex flex-col h-full justify-between">
-          <div className="space-y-5 flex-1">
-            <div className="flex items-center justify-between pb-2 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <History className="h-4.5 w-4.5 text-primary" />
-                <h3 className="text-md font-bold text-foreground">Activity Timeline</h3>
+        <div className="p-7 rounded-[24px] border border-border/50 glass flex flex-col h-[calc(100vh-200px)] min-h-[700px] justify-between shadow-sm sticky top-24">
+          <div className="space-y-6 flex-1 flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between pb-4 border-b border-border/40">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                   <History className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Activity Log</h3>
               </div>
-              <span className="text-[10px] font-semibold text-muted-foreground px-2 py-0.5 bg-secondary/80 border border-border rounded-lg">
-                Audits Enabled
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-md">
+                Live
               </span>
             </div>
 
             {isAdmin ? (
-              <div className="space-y-4 overflow-y-auto max-h-[520px] pr-1">
+              <div className="flex-1 overflow-y-auto space-y-5 pr-2 custom-scrollbar">
                 {auditLogs && auditLogs.length > 0 ? (
                   auditLogs.map((log) => (
-                    <div key={log._id} className="relative pl-6 pb-2 group">
+                    <div key={log._id} className="relative pl-7 pb-2 group animate-slide-up">
                       {/* Left timeline bar */}
-                      <div className="absolute top-1.5 left-1.5 h-full w-[1.5px] bg-border group-last:h-2" />
-                      <div className="absolute top-1.5 left-0.5 h-3 w-3 rounded-full border-2 border-background bg-primary ring-2 ring-primary/10" />
+                      <div className="absolute top-2 left-2 h-full w-[2px] bg-border/50 group-last:h-2" />
+                      <div className="absolute top-1.5 left-[3px] h-3.5 w-3.5 rounded-full border-2 border-background bg-primary ring-4 ring-primary/10" />
 
-                      <div className="space-y-0.5">
-                        <span className="text-[10px] text-muted-foreground block font-mono">
+                      <div className="space-y-1 bg-background/40 border border-border/40 p-3 rounded-xl hover:bg-background/80 transition-colors">
+                        <span className="text-[10px] text-muted-foreground block font-mono font-medium tracking-wide">
                           {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(log.timestamp).toLocaleDateString()}
                         </span>
-                        <h4 className="text-xs font-bold text-foreground">
+                        <h4 className="text-sm font-semibold text-foreground">
                           {log.userName}{" "}
-                          <span className="text-muted-foreground font-normal">({log.action})</span>
+                          <span className="text-primary/80 font-medium text-xs ml-1">({log.action})</span>
                         </h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-relaxed mt-1">
                           {log.details}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <EmptyTimelineState text="No activity audits recorded in DB yet" />
+                  <EmptyTimelineState text="No activity audits recorded yet" />
                 )}
               </div>
             ) : (
               // Normal users view audit log description
-              <div className="flex flex-col items-center justify-center text-center py-16 space-y-4">
-                <div className="h-12 w-12 rounded-xl bg-secondary/40 border border-border flex items-center justify-center text-muted-foreground">
-                  <XCircle className="h-6 w-6" />
+              <div className="flex flex-col items-center justify-center text-center flex-1 space-y-4">
+                <div className="h-16 w-16 rounded-2xl bg-secondary/50 border border-border flex items-center justify-center text-muted-foreground shadow-inner">
+                  <XCircle className="h-8 w-8" />
                 </div>
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-foreground">Logs Unavailable</h4>
-                  <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-                    Activity audit trails are locked to administrator roles. Contact support for system-wide access.
+                <div className="space-y-2">
+                  <h4 className="text-lg font-bold text-foreground tracking-tight">Logs Restricted</h4>
+                  <p className="text-sm text-muted-foreground max-w-[240px] leading-relaxed mx-auto">
+                    Activity audit trails require administrator access. Contact support to request permissions.
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="pt-4 mt-4 border-t border-border/60 text-center">
-            <span className="text-[10px] text-muted-foreground">
-              Scheduler logs operate under ISO 27001 audit controls.
+          <div className="pt-5 mt-5 border-t border-border/40 text-center flex items-center justify-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
+              Secure Audit Trail
             </span>
           </div>
         </div>
@@ -341,35 +361,38 @@ interface StatsCardProps {
 
 function StatsCard({ title, value, description, icon: Icon, color }: StatsCardProps) {
   const colorMap = {
-    primary: "from-primary/10 to-blue-500/5 text-primary border-primary/20",
-    indigo: "from-indigo-500/10 to-purple-500/5 text-indigo-500 border-indigo-500/20",
-    emerald: "from-emerald-500/10 to-teal-500/5 text-emerald-500 border-emerald-500/20",
-    rose: "from-rose-500/10 to-red-500/5 text-rose-500 border-rose-500/20",
+    primary: "from-primary/10 to-primary/5 text-primary border-primary/20",
+    indigo: "from-indigo-500/10 to-indigo-500/5 text-indigo-500 border-indigo-500/20",
+    emerald: "from-emerald-500/10 to-emerald-500/5 text-emerald-500 border-emerald-500/20",
+    rose: "from-rose-500/10 to-rose-500/5 text-rose-500 border-rose-500/20",
   };
 
   const iconColor = {
-    primary: "bg-primary text-white",
-    indigo: "bg-indigo-500 text-white",
-    emerald: "bg-emerald-500 text-white",
-    rose: "bg-rose-500 text-white",
+    primary: "bg-primary text-white shadow-primary/30",
+    indigo: "bg-indigo-500 text-white shadow-indigo-500/30",
+    emerald: "bg-emerald-500 text-white shadow-emerald-500/30",
+    rose: "bg-rose-500 text-white shadow-rose-500/30",
   };
 
   return (
     <div
       className={cn(
-        "relative overflow-hidden p-6 rounded-2xl border bg-gradient-to-tr bg-card/40 backdrop-blur-sm flex items-center justify-between shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-300",
+        "relative overflow-hidden p-6 rounded-[20px] border bg-gradient-to-tr glass flex items-center justify-between shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group",
         colorMap[color]
       )}
     >
-      <div className="space-y-1.5">
-        <span className="text-xs font-semibold text-muted-foreground block">{title}</span>
-        <h3 className="text-3xl font-extrabold text-foreground tracking-tight">{value}</h3>
-        <p className="text-[10px] text-muted-foreground">{description}</p>
+      <div className="space-y-2 relative z-10">
+        <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground block">{title}</span>
+        <h3 className="text-4xl font-black text-foreground tracking-tight">{value}</h3>
+        <p className="text-[11px] text-muted-foreground font-medium">{description}</p>
       </div>
 
-      <div className={cn("p-3 rounded-xl shadow-md", iconColor[color])}>
-        <Icon className="h-5 w-5" />
+      <div className={cn("p-4 rounded-[16px] shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 relative z-10", iconColor[color])}>
+        <Icon className="h-6 w-6" />
       </div>
+
+      {/* Decorative background circle */}
+      <div className={cn("absolute -bottom-8 -right-8 h-32 w-32 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-150", iconColor[color])} />
     </div>
   );
 }
@@ -377,13 +400,15 @@ function StatsCard({ title, value, description, icon: Icon, color }: StatsCardPr
 function OutcomeProgress({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
   const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs font-semibold">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="text-foreground">{count} ({percentage}%)</span>
+    <div className="space-y-2">
+      <div className="flex justify-between text-sm font-bold">
+        <span className="text-muted-foreground tracking-tight">{label}</span>
+        <span className="text-foreground">{count} <span className="text-muted-foreground font-medium text-xs ml-1">({percentage}%)</span></span>
       </div>
-      <div className="h-2 w-full bg-secondary/80 rounded-full overflow-hidden">
-        <div className={cn("h-full rounded-full transition-all duration-500", color)} style={{ width: `${percentage}%` }} />
+      <div className="h-2.5 w-full bg-secondary/60 rounded-full overflow-hidden shadow-inner">
+        <div className={cn("h-full rounded-full transition-all duration-1000 ease-out relative", color)} style={{ width: `${percentage}%` }}>
+          <div className="absolute inset-0 bg-white/20 w-full h-full" />
+        </div>
       </div>
     </div>
   );
@@ -391,48 +416,49 @@ function OutcomeProgress({ label, count, total, color }: { label: string; count:
 
 function EmptyChartState({ text }: { text: string }) {
   return (
-    <div className="h-full w-full flex flex-col items-center justify-center text-center p-8 border border-dashed border-border rounded-xl bg-secondary/15">
-      <FileText className="h-8 w-8 text-muted-foreground mb-2 animate-bounce" />
-      <span className="text-xs text-muted-foreground">{text}</span>
+    <div className="h-full w-full flex flex-col items-center justify-center text-center p-8 border border-dashed border-border/50 rounded-2xl bg-secondary/10">
+      <div className="h-12 w-12 rounded-xl bg-background flex items-center justify-center mb-3 shadow-sm">
+         <FileText className="h-6 w-6 text-muted-foreground animate-pulse" />
+      </div>
+      <span className="text-sm font-medium text-muted-foreground">{text}</span>
     </div>
   );
 }
 
 function EmptyTimelineState({ text }: { text: string }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16 space-y-3">
-      <History className="h-8 w-8 text-muted-foreground mb-1 animate-pulse" />
-      <h4 className="text-xs font-bold text-foreground">Audit Log Clear</h4>
-      <p className="text-[10px] text-muted-foreground max-w-xs leading-relaxed">
-        {text}
-      </p>
+    <div className="flex flex-col items-center justify-center text-center py-16 space-y-4">
+      <div className="h-14 w-14 rounded-full bg-secondary/50 flex items-center justify-center shadow-inner">
+         <History className="h-7 w-7 text-muted-foreground mb-1 animate-pulse" />
+      </div>
+      <div className="space-y-1">
+        <h4 className="text-sm font-bold text-foreground">Log Clear</h4>
+        <p className="text-[11px] text-muted-foreground max-w-[200px] leading-relaxed mx-auto">
+          {text}
+        </p>
+      </div>
     </div>
   );
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-8 animate-pulse">
-      {/* Banner skeleton */}
-      <div className="h-40 w-full rounded-2xl bg-secondary/40 border border-border" />
-      
-      {/* Grid Cards skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="space-y-8 animate-pulse max-w-7xl mx-auto">
+      <div className="h-44 w-full rounded-[24px] bg-secondary/30 border border-border/40" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 rounded-2xl bg-secondary/40 border border-border" />
+          <div key={i} className="h-32 rounded-[20px] bg-secondary/30 border border-border/40" />
         ))}
       </div>
-
-      {/* Columns Skeletons */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="h-96 rounded-2xl bg-secondary/40 border border-border" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-80 rounded-2xl bg-secondary/40 border border-border" />
-            <div className="h-80 rounded-2xl bg-secondary/40 border border-border" />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2 space-y-8">
+          <div className="h-[400px] rounded-[24px] bg-secondary/30 border border-border/40" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="h-[380px] rounded-[24px] bg-secondary/30 border border-border/40" />
+            <div className="h-[380px] rounded-[24px] bg-secondary/30 border border-border/40" />
           </div>
         </div>
-        <div className="h-full min-h-[500px] rounded-2xl bg-secondary/40 border border-border" />
+        <div className="h-full min-h-[700px] rounded-[24px] bg-secondary/30 border border-border/40" />
       </div>
     </div>
   );
