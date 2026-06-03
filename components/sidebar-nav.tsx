@@ -18,7 +18,8 @@ import {
   Search,
   Bell,
   Settings,
-  PieChart
+  PieChart,
+  Flame
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -94,9 +95,9 @@ export function SidebarNav({ className, onNavigate }: SidebarNavProps) {
     >
       {/* Brand Header */}
       <div className="flex items-center justify-between h-20 px-6 border-b border-border/40">
-        <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden">
+        <Link href="/dashboard/interviews" className="flex items-center gap-3 overflow-hidden">
           <div className="flex items-center justify-center h-9 w-9 shrink-0 rounded-xl overflow-hidden bg-gradient-indigo shadow-md shadow-indigo-500/20 text-white">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M12 2L2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <Flame className="w-5 h-5" />
           </div>
           {!isCollapsed && (
             <span className="font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent truncate animate-fade-in tracking-tight">

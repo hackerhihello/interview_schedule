@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Menu, X, Bell, Copy, Check, ExternalLink, UserCheck, Loader2, Search, Command } from "lucide-react";
+import { Menu, X, Bell, Copy, Check, ExternalLink, UserCheck, Loader2, Search, Command, Flame } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { SidebarNav } from "./sidebar-nav";
 import { cn } from "@/lib/utils";
@@ -119,37 +120,20 @@ export function Navbar() {
           </div>
           
           {/* Small visual accent for brand identification on extra small screens */}
-          <div className="sm:hidden flex items-center gap-2 font-bold text-sm text-foreground">
+          <Link href="/dashboard/interviews" className="sm:hidden flex items-center gap-2 font-bold text-sm text-foreground">
             <div className="h-6 w-6 rounded flex items-center justify-center bg-gradient-indigo text-white shadow-sm">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M12 2L2 7l10 5 10-5-10-5Z"/></svg>
+              <Flame className="w-3.5 h-3.5" />
             </div>
             <span className="bg-gradient-to-tr from-primary to-secondary text-transparent bg-clip-text">Ignited Minds</span>
-          </div>
+          </Link>
         </div>
 
-        {/* Center: Command Palette Placeholder (Desktop) */}
-        <div className="hidden lg:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <input
-              type="text"
-              placeholder="Search anything..."
-              className="w-full h-10 pl-10 pr-12 rounded-xl bg-background/50 border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all outline-none text-sm placeholder:text-muted-foreground/60 shadow-sm"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-              <kbd className="hidden xl:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-muted/50 text-[10px] font-medium text-muted-foreground">
-                <Command className="h-3 w-3" /> K
-              </kbd>
-            </div>
-          </div>
-        </div>
+
 
         {/* Right Side: Notifications, Theme, Profile */}
         <div className="flex items-center gap-3">
           
-          <button className="lg:hidden p-2.5 rounded-full hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-all">
-            <Search className="h-4.5 w-4.5" />
-          </button>
+
 
           {/* Real-time Notifications Popover */}
           <div className="relative">
@@ -272,7 +256,7 @@ export function Navbar() {
           </div>
 
           {/* Light/Dark Toggle */}
-          <div className="hidden sm:block">
+          <div>
             <ThemeToggle />
           </div>
 
