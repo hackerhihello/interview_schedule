@@ -14,8 +14,8 @@ export const getReportData = query({
       .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
       .first();
 
-    if (!user || user.role !== "admin") {
-      throw new Error("Unauthorized: Admin access required");
+    if (!user) {
+      throw new Error("Unauthorized");
     }
 
     const interviews = await ctx.db.query("interviews").collect();

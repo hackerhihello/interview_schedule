@@ -77,7 +77,7 @@ export function SidebarNav({ className, onNavigate }: SidebarNavProps) {
       label: "Reports & Analytics",
       icon: PieChart,
       href: "/dashboard/reports",
-      role: "admin",
+      role: "all",
     },
   ];
 
