@@ -17,7 +17,8 @@ import {
   LogOut,
   Search,
   Bell,
-  Settings
+  Settings,
+  PieChart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +70,12 @@ export function SidebarNav({ className, onNavigate }: SidebarNavProps) {
       label: "Audit Logs",
       icon: History,
       href: "/dashboard/activity",
+      role: "admin",
+    },
+    {
+      label: "Reports & Analytics",
+      icon: PieChart,
+      href: "/dashboard/reports",
       role: "admin",
     },
   ];
