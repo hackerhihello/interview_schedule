@@ -102,7 +102,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 h-[72px] px-6 md:px-8 flex items-center justify-between border-b border-border/40 glass z-10 transition-all duration-300">
+      <header className="sticky top-0 h-[72px] px-6 md:px-8 flex items-center justify-between border-b border-border/40 glass z-50 transition-all duration-300">
         {/* Left Side: Mobile Menu Button & Breadcrumb */}
         <div className="flex items-center gap-4">
           <button
