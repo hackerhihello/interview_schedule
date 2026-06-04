@@ -50,4 +50,9 @@ export default defineSchema({
     timestamp: v.number(),
   })
     .index("by_timestamp", ["timestamp"]),
+
+  reportSettings: defineTable({
+    emailTo: v.optional(v.string()),
+    whatsappTo: v.optional(v.string()),
+  }),
 });

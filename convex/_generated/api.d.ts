@@ -9,7 +9,9 @@
  */
 
 import type * as activity from "../activity.js";
+import type * as crons from "../crons.js";
 import type * as interviews from "../interviews.js";
+import type * as nodeReports from "../nodeReports.js";
 import type * as reports from "../reports.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
@@ -22,7 +24,9 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   activity: typeof activity;
+  crons: typeof crons;
   interviews: typeof interviews;
+  nodeReports: typeof nodeReports;
   reports: typeof reports;
   seed: typeof seed;
   users: typeof users;
